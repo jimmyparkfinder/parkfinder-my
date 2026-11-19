@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#003e35"><title>ParkFinder MY · 手机实测版</title>
+<style>
+:root{--green:#006b53;--deep:#003c34;--mint:#e9f6ef;--ink:#182a25;--muted:#667770;--line:#dce7e1;--bg:#f4f7f5;--red:#e94b43;--blue:#2878d7;--gold:#e6bd43}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1120px;margin:auto;padding:14px}
+.hero{background:linear-gradient(110deg,#00372f,#005445);color:white;border-radius:18px;padding:18px;display:flex;align-items:center;gap:14px}.logo{width:54px;height:54px;border-radius:13px;background:#08a66e;display:grid;place-items:center;font-size:38px;font-weight:900}.hero h1{font-size:24px;margin:0}.hero p{margin:3px 0 0;color:#d7eee5;font-size:13px}.hero .tag{margin-left:auto;border:1px solid #6db39c;border-radius:999px;padding:7px 10px;font-size:12px;white-space:nowrap}
+.notice{background:#fff8e8;border:1px solid #f0d9a1;padding:10px 12px;border-radius:12px;margin:12px 0;font-size:12px;color:#775819;line-height:1.5}
+.steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:14px 0}.step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;min-height:75px}.step strong{display:flex;align-items:center;gap:7px;font-size:13px}.num{display:inline-grid;place-items:center;flex:0 0 27px;height:27px;border-radius:50%;background:var(--deep);color:#fff;font-size:13px}.step small{display:block;color:var(--muted);font-size:11px;margin:6px 0 0 34px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 4px 18px #143c2910}.card h2{font-size:18px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field label{display:block;color:#597166;font-size:13px;font-weight:750;margin-bottom:7px}.inputrow{display:flex;gap:8px}.inputwrap{position:relative}.field input,.field select{width:100%;border:1px solid #cfddd5;border-radius:11px;background:#fff;padding:13px 12px;min-width:0;color:var(--ink);outline:none}.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px #006b5319}.soft,.primary,.outline{border:0;border-radius:11px;padding:12px 14px;font-weight:750;white-space:nowrap}.soft{background:var(--mint);color:var(--green)}.primary{background:var(--green);color:#fff}.outline{background:white;border:1px solid var(--line);color:var(--ink)}.full{width:100%;margin-top:12px}.muted{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}.suggestions{position:absolute;z-index:10;top:calc(100% + 5px);left:0;right:0;background:white;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px #0002;max-height:270px;overflow:auto}.suggestions.hidden{display:none}.suggestion{display:block;width:100%;border:0;border-bottom:1px solid #edf1ee;background:white;text-align:left;padding:12px;white-space:normal}.suggestion:hover{background:var(--mint)}.suggestion b{display:block}.suggestion small{display:block;color:var(--muted);margin-top:3px}
+.statusline{background:#f5f8f6;border-radius:10px;padding:10px;font-size:12px;margin-top:9px;line-height:1.5}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metricbox{background:#f7faf8;border-radius:12px;padding:13px}.metricbox small{display:block;color:var(--muted);font-size:11px}.metricbox strong{display:block;font-size:22px;margin-top:5px}.zones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.zone{border:1px solid var(--line);border-radius:14px;padding:13px;min-width:0}.zone.selected{border:2px solid var(--green);background:#f3fbf6}.ztitle{display:flex;align-items:center;gap:8px;font-weight:800}.zletter{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;color:#fff;font-weight:900}.za{background:var(--red)}.zb{background:var(--blue)}.zc{background:#16965d}.walk{font-size:17px;font-weight:850;margin:12px 0 3px}.distance{font-size:12px;color:var(--muted)}.chance{font-size:12px;margin-top:12px;background:#f3f6f4;border-radius:7px;padding:7px}.zone button{width:100%;margin-top:10px;padding:10px 7px;font-size:12px}.zone .zone-nav{background:#006b53;color:white;grid-column:1/-1;max-width:none;width:100%;margin-top:12px}.mapplaceholder{border-radius:14px;min-height:230px;background:linear-gradient(135deg,#e7f1e9,#d6e7e1);position:relative;overflow:hidden;padding:18px;display:flex;align-items:center;justify-content:center;text-align:center}.mapplaceholder:before,.mapplaceholder:after{content:"";position:absolute;background:#fff;opacity:.8;transform:rotate(-24deg);width:130%;height:22px;top:40%;left:-10%}.mapplaceholder:after{transform:rotate(33deg);top:62%}.mapcontent{position:relative;z-index:1;background:#ffffffeb;border-radius:12px;padding:16px;max-width:340px;box-shadow:0 6px 20px #2342}.mapcontent strong{display:block;margin-bottom:5px}.mapcontent p{font-size:12px;color:var(--muted);margin:0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.actions button{flex:1}.result{font-size:13px;line-height:1.6;background:#f5faf7;border-radius:12px;padding:13px;margin-top:12px}.foot{font-size:11px;color:var(--muted);text-align:center;padding:12px}
+@media(max-width:760px){.wrap{padding:9px}.hero{padding:14px}.hero h1{font-size:20px}.hero .tag{display:none}.steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.step{padding:8px;min-height:68px}.step small{margin-left:0}.grid{grid-template-columns:1fr}.zones{grid-template-columns:1fr}.zone{display:block}.zone button{width:100%;max-width:none;margin-top:12px}.metrics{gap:7px}.metricbox{padding:10px}.metricbox strong{font-size:18px}.card{padding:13px}.inputrow{align-items:stretch}.inputrow input{width:100%}.soft{padding:10px;font-size:12px}}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="logo">P</div><div><h1>ParkFinder MY</h1><p>找车位 · 更轻松 | KL 手机实测原型</p></div><div class="tag">实测测试版</div></header>
+<div class="notice"><b>实测安全提醒：</b>请在出发前或安全停车后操作，不要边开车边看手机。本版本可调用手机浏览器定位、搜索地点并打开 Google Maps 导航；停车区、步行时间和空位机会仍为示例，不代表真实空位或合法停车确认。</div>
+<div class="steps">
+<div class="step"><strong><span class="num">1</span>打开 App</strong><small>获取当前位置</small></div><div class="step"><strong><span class="num">2</span>搜索目的地</strong><small>店名、路名、商圈</small></div><div class="step"><strong><span class="num">3</span>查看推荐区</strong><small>步行距离筛选</small></div><div class="step"><strong><span class="num">4</span>选择 Zone</strong><small>A / B / C</small></div><div class="step"><strong><span class="num">5</span>开始导航</strong><small>打开 Google Maps</small></div><div class="step"><strong><span class="num">6</span>现场反馈</strong><small>记录找到/已满</small></div>
+</div>
+<section class="card"><h2>① 设置行程</h2><div class="grid">
+<div class="field"><label for="origin">出发点 / 当前定位</label><div class="inputrow"><input id="origin" placeholder="等待手机定位…" autocomplete="street-address"><button class="soft" id="locate">📍 重新定位</button></div><div class="statusline" id="locStatus">正在尝试获取手机位置…首次使用请允许浏览器访问位置。</div></div>
+<div class="field"><label for="destination">目的地（输入店名或地点）</label><div class="inputwrap"><input id="destination" placeholder="例如：South Link Bangsar、Kuchai Lama 老板面" autocomplete="off"><div id="suggestions" class="suggestions hidden"></div></div><div class="muted">输入至少 2 个字后会尝试显示在线地点建议。可输入英文、路名或店名；免费地图服务可能搜不到部分小店。</div><div class="actions"><button class="outline" id="googleSearch">用 Google Maps 搜索</button></div></div>
+<div class="field"><label for="day">日期 / 场景</label><select id="day"><option value="normal">普通时段</option><option value="busy" selected>繁忙时段</option><option value="market">夜市 / 活动时段</option><option value="holiday">节日 / 特别活动</option></select></div>
+<div class="field"><label for="time">预计抵达时间</label><select id="time"><option>17:00</option><option selected>18:00</option><option>19:00</option><option>20:00</option><option>21:00</option></select></div>
+</div><button class="primary full" id="findZones">🔎 查找附近停车区域</button><div class="muted">地点建议：Photon + Nominatim 双服务备用，不需要 API Key；需要网络连接，免费服务可能限流。</div></section>
+<section class="card"><h2>② 行程概览</h2><div class="metrics"><div class="metricbox"><small>驾驶时间</small><strong id="drive">待计算</strong></div><div class="metricbox"><small>驾驶距离</small><strong id="driveDist">待计算</strong></div><div class="metricbox"><small>推荐步行上限</small><strong>15 分钟</strong></div></div><div class="mapplaceholder" style="margin-top:12px"><div class="mapcontent"><strong id="mapTitle">准备开始行程</strong><p id="mapDesc">定位并选择目的地后，可打开 Google Maps 查看真实驾驶路线。</p></div></div><div class="actions"><button class="primary" id="routeBtn">🅿️ 在 Google Maps 查找目的地附近停车点</button></div></section>
+<section class="card"><h2>③ 选择区域并直接查找停车点</h2><div class="muted" style="margin-bottom:12px">选一个 Zone，App 会立即打开 Google Maps 搜索该范围的停车候选点；在 Google Maps 选定具体停车地点后，点击「路线」即可导航。Zone 步行时间和机会值目前仍是测试示例，尚未根据真实停车路段计算。</div><div class="zones" id="zones">
+<div class="zone"><div class="ztitle"><span class="zletter za">A</span>Zone A · 最近范围</div><div class="walk">步行 5–10 分钟</div><div class="distance">示例：约 400–800 米</div><div class="chance">模拟空位机会：一般</div><button class="outline" disabled>先输入目的地</button></div>
+<div class="zone"><div class="ztitle"><span class="zletter zb">B</span>Zone B · 相邻街道</div><div class="walk">步行 10–13 分钟</div><div class="distance">示例：约 800–1,000 米</div><div class="chance">模拟空位机会：一般</div><button class="outline" disabled>先输入目的地</button></div>
+<div class="zone"><div class="ztitle"><span class="zletter zc">C</span>Zone C · 最远范围</div><div class="walk">步行 13–15 分钟</div><div class="distance">示例：约 1,000–1,200 米</div><div class="chance">模拟空位机会：一般</div><button class="outline" disabled>先输入目的地</button></div>
+</div><div class="result" id="result">选择目的地后点击「查找附近停车区域」。此原型不会显示真实实时空位。</div></section>
+<section class="card"><h2>④ 到场反馈</h2><p class="muted">选择你实际看到的情况，帮助之后改进推荐。反馈暂时只保存在这台设备的浏览器里。</p><div class="actions"><button class="primary" id="found">✅ 找到车位</button><button class="outline" id="full">❌ 这里已满</button><button class="outline" id="unknown">⚪ 无法确认</button></div><div class="statusline" id="feedback">还没有现场反馈。</div></section>
+<div class="foot">ParkFinder MY v0.9 · GPS 高精度失败后自动降级重试；地点搜索有双服务备用。请遵守路边停车标志、收费和当地交通规则。</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let devicePosition=null,selectedPlace=null,searchTimer=null,searchSeq=0,selectedZone="A",lastFeedback=[];
+function setLoc(text){$("locStatus").textContent=text}
+function requestLocation(){
+ const btn=$("locate");btn.disabled=true;btn.textContent="定位中…";setLoc("正在请求手机定位权限（高精度模式）…");
+ if(!window.isSecureContext){setLoc("当前网页不是安全 HTTPS 环境，浏览器可能禁止定位。请使用 GitHub Pages 的 https:// 链接打开。");btn.disabled=false;btn.textContent="📍 重新定位";return}
+ if(!navigator.geolocation){setLoc("此浏览器不支持定位。请用手机 Safari / Chrome，并开启系统定位服务。");btn.disabled=false;btn.textContent="📍 重新定位";return}
+ const success=pos=>{
+  devicePosition={lat:pos.coords.latitude,lon:pos.coords.longitude,accuracy:Math.round(pos.coords.accuracy||0)};
+  $("origin").value=pos.coords.latitude.toFixed(6)+", "+pos.coords.longitude.toFixed(6);
+  setLoc("定位成功 · 精度约 "+devicePosition.accuracy+" 米。地点搜索会优先参考附近结果。");
+  btn.disabled=false;btn.textContent="📍 重新定位";
+ };
+ const failHigh=err=>{
+  const reason={1:"位置权限被拒绝",2:"高精度定位暂时不可用",3:"高精度定位超时"}[err.code]||"高精度定位失败";
+  setLoc(reason+"，正在改用一般精度再次尝试…");
+  navigator.geolocation.getCurrentPosition(success,err2=>{
+   const msg={1:"浏览器位置权限被拒绝。请在手机设置中允许此网站使用位置。",2:"手机无法取得位置。请开启系统定位服务、网络，并移到户外或窗边。",3:"一般精度定位也超时。请检查网络和手机定位服务后重试。"};
+   setLoc((msg[err2.code]||"定位失败。请检查手机系统定位和浏览器权限。")+"（错误代码："+err2.code+"）");
+   btn.disabled=false;btn.textContent="📍 重试定位";
+  },{enableHighAccuracy:false,timeout:25000,maximumAge:60000});
+ };
+ navigator.geolocation.getCurrentPosition(success,failHigh,{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+}
+function placeLabel(p){return [p.name,p.street,p.housenumber,p.district,p.city,p.state,p.country].filter(Boolean).join(", ")}
+function choosePlace(name,detail,lat,lon){
+ selectedPlace={name,detail,lat,lon};$("destination").value=name+(detail?" — "+detail:"");$("suggestions").classList.add("hidden");
+ $("mapTitle").textContent=name;$("mapDesc").textContent=detail||"已选择目的地。点击 Google Maps 查看真实路线。";
+ $("result").textContent="已选择目的地："+$("destination").value+"。请点击「查找附近停车区域」查看测试推荐。";
+}
+async function fetchSuggestions(q,seq){
+ const box=$("suggestions");box.innerHTML='<div class="suggestion">正在搜索地点（免费地图服务）…</div>';box.classList.remove("hidden");
+ const render=(items)=>{
+  if(seq!==searchSeq)return;box.innerHTML="";const seen=new Set();
+  items.forEach(item=>{const key=item.name+"|"+item.detail;if(seen.has(key))return;seen.add(key);
+   const b=document.createElement("button");b.className="suggestion";b.innerHTML="<b></b><small></small>";b.querySelector("b").textContent=item.name;b.querySelector("small").textContent=item.detail||"地图地点";b.addEventListener("click",()=>choosePlace(item.name,item.detail,item.lat,item.lon));box.appendChild(b);
+  });
+  if(!box.children.length)box.innerHTML='<div class="suggestion">没有找到结果。请尝试较短关键词（例如老板面 / Kuchai Lama），或点「用 Google Maps 搜索」。</div>';
+ };
+ const params=new URLSearchParams({q,limit:"8",lang:"en"});
+ if(devicePosition){params.set("lat",devicePosition.lat);params.set("lon",devicePosition.lon);params.set("zoom","13")}
+ try{
+  const res=await fetch("https://photon.komoot.io/api/?"+params.toString(),{headers:{Accept:"application/json"}});
+  if(!res.ok)throw Error("Photon HTTP "+res.status);
+  const data=await res.json();const items=(data.features||[]).map(f=>{const p=f.properties||{},c=f.geometry&&f.geometry.coordinates;if(!c)return null;const name=p.name||p.street||q,detail=[p.street&&p.street!==name?p.street:null,p.housenumber,p.district,p.city,p.state,p.country].filter(Boolean).join(", ");return {name,detail,lat:c[1],lon:c[0]}}).filter(Boolean);
+  if(items.length){render(items);return;}
+ }catch(e){/* use secondary free geocoder below */}
+ try{
+  const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q="+encodeURIComponent(q);
+  const res=await fetch(url,{headers:{"Accept":"application/json","Accept-Language":"en,zh"}});
+  if(!res.ok)throw Error("Nominatim HTTP "+res.status);
+  const data=await res.json();
+  const items=data.map(r=>{const a=r.address||{},name=r.name||r.display_name.split(",")[0],detail=[a.road,a.suburb||a.neighbourhood,a.city||a.town||a.village,a.state,a.country].filter(Boolean).join(", ");return {name,detail:detail||r.display_name,lat:Number(r.lat),lon:Number(r.lon)}});
+  render(items);
+ }catch(e){if(seq!==searchSeq)return;box.innerHTML='<div class="suggestion">两个免费地图搜索服务都无法连接。请检查手机网络，或使用「用 Google Maps 搜索」。</div>'}
+}
+$("destination").addEventListener("input",()=>{
+ selectedPlace=null;const q=$("destination").value.trim();clearTimeout(searchTimer);if(q.length<2){$("suggestions").classList.add("hidden");return}
+ const seq=++searchSeq;searchTimer=setTimeout(()=>fetchSuggestions(q,seq),350);
+});
+document.addEventListener("click",e=>{if(!e.target.closest(".inputwrap"))$("suggestions").classList.add("hidden")});
+function mapsSearch(){const q=$("destination").value.trim();if(!q){alert("请先输入目的地。");return}window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q),"_blank","noopener")}
+function mapsRoute(){
+ const dest=$("destination").value.trim();
+ if(!dest){alert("请先搜索并选择目的地。");return}
+ // Google Maps search URL: user selects a real parking candidate before starting directions.
+ const query="parking near "+dest;
+ const url="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(query);
+ window.open(url,"_blank","noopener");
+}
+function openZoneParkingSearch(zoneId){
+ const dest=$("destination").value.trim();
+ if(!dest){$("result").textContent="请先输入并选择目的地，再查找停车地点。";$("destination").focus();return}
+ selectedZone=zoneId;
+ const range={A:"closest parking near ",B:"alternative parking near ",C:"parking options near "}[zoneId]||"parking near ";
+ const query=range+dest;
+ const url="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(query);
+ $("result").textContent="已选择 Zone "+zoneId+"。Google Maps 正在搜索："+query+"。在地图结果中选择一个停车场/停车地点，打开详情后点击「路线」即可导航。提醒：Google Maps 搜索结果未必是合法路边停车位；Zone 步行范围目前仍是示例，并非真实路网计算。";
+ window.open(url,"_blank","noopener");
+}
+$("locate").addEventListener("click",requestLocation);$("googleSearch").addEventListener("click",mapsSearch);$("routeBtn").addEventListener("click",mapsRoute);
+function renderZones(){
+ const mode=$("day").value,arr=mode==="normal"?[68,52,37]:mode==="busy"?[42,55,60]:mode==="market"?[22,43,61]:[15,35,53];
+ const zs=[{id:"A",title:"Zone A · 最近范围",walk:"步行 5–10 分钟",dist:"约 400–800 米（示例）",mins:7,chance:arr[0],cls:"za"},{id:"B",title:"Zone B · 相邻街道",walk:"步行 10–13 分钟",dist:"约 800–1,000 米（示例）",mins:12,chance:arr[1],cls:"zb"},{id:"C",title:"Zone C · 最远范围",walk:"步行 13–15 分钟",dist:"约 1,000–1,200 米（示例）",mins:14,chance:arr[2],cls:"zc"}].filter(z=>z.mins<=15);
+ const root=$("zones");root.innerHTML="";
+ zs.forEach(z=>{const el=document.createElement("div");el.className="zone"+(selectedZone===z.id?" selected":"");const rating=z.chance>=55?"模拟机会：一般偏高":z.chance<30?"模拟机会：偏低":"模拟机会：一般";
+ el.innerHTML=`<div class="ztitle"><span class="zletter ${z.cls}">${z.id}</span>${z.title}</div><div class="walk">${z.walk}</div><div class="distance">${z.dist}</div><div class="chance">${rating} · ${z.chance}%（模拟）</div><button class="primary zone-nav" type="button">选择 Zone ${z.id} 并查找停车点</button>`;
+ const buttons=el.querySelectorAll("button");
+ buttons[0].addEventListener("click",()=>{selectedZone=z.id;renderZones();openZoneParkingSearch(z.id)});
+ root.appendChild(el)});
+}
+$("findZones").addEventListener("click",()=>{
+ const dest=$("destination").value.trim();if(!dest){$("result").textContent="请先输入目的地并选择一个搜索结果，或使用 Google Maps 搜索。";$("destination").focus();return}
+ renderZones();$("drive").textContent="由地图计算";$("driveDist").textContent="由地图计算";$("mapTitle").textContent=dest;$("mapDesc").textContent="已准备好目的地。点下方按钮在 Google Maps 搜索附近停车点；选择具体停车地点后，再点击路线导航。Zone 距离仍为示例。";
+ $("result").textContent="已为「"+dest+"」显示步行 15 分钟内的示例 Zone。注意：目前还未接入真实路边停车数据库，空位机会是模拟值，不要把它当成实际车位承诺。";
+});
+function recordFeedback(label){const item={zone:selectedZone,feedback:label,time:new Date().toLocaleString()};lastFeedback.push(item);try{localStorage.setItem("pfmy_feedback",JSON.stringify(lastFeedback))}catch(e){}$("feedback").textContent=`已记录：Zone ${selectedZone} · ${label} · ${item.time}（保存在当前浏览器）`}
+$("found").addEventListener("click",()=>recordFeedback("找到车位"));$("full").addEventListener("click",()=>recordFeedback("这里已满"));$("unknown").addEventListener("click",()=>recordFeedback("无法确认"));
+try{lastFeedback=JSON.parse(localStorage.getItem("pfmy_feedback")||"[]")}catch(e){}
+renderZones();
+if(location.protocol==="https:"||location.hostname==="localhost")requestLocation();else setLoc("要自动定位，请把此网页发布到 HTTPS 网站后打开；本地文件预览可能会限制定位。点「重新定位」也可尝试。");
+</script></body></html>
