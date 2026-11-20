@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a8e629">
-<title>ParkFinder MY · v3.7 Test</title>
+<title>ParkFinder MY · v3.8 Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--lime:#a8e629;--lime-dark:#4e7e08;--ink:#17251b;--muted:#758174;--line:#e7ece4;--bg:#f5f7f3;--soft:#f0f6e9;--white:#fff;--shadow:0 8px 26px rgba(23,37,27,.055)}
@@ -79,6 +79,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .tag{font-size:10px;font-weight:900;background:#f0f7e3;color:#4e7716;border-radius:8px;padding:7px 8px;white-space:nowrap}
 .cardaction{grid-column:2/4;display:flex;justify-content:flex-end;gap:12px;margin-top:-2px;flex-wrap:wrap}
 .textbtn{border:0;background:none;color:#4e7e08;font-size:11px;font-weight:850;padding:3px;cursor:pointer}
+
+/* Restored Per-Card Visual Preview Drawer */
+.card-visual{grid-column:1/4;display:none;margin-top:6px;padding-top:10px;border-top:1px dashed #e3eadc}
+.card-visual.open{display:block}
+.visual-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:600px){.visual-grid{grid-template-columns:1.25fr .9fr}}
+.visual-map{height:185px;width:100%;border-radius:12px;overflow:hidden;border:1px solid #dce6d4;background:#eef3ea}
+.visual-street{border:1px solid #dce6d4;border-radius:12px;background:#f9fbf7;padding:10px;display:flex;flex-direction:column;justify-content:space-between;min-height:185px}
+.visual-photo{width:100%;height:112px;object-fit:cover;border-radius:9px;background:#e5ece0;display:block}
+.visual-placeholder{height:112px;border-radius:9px;background:#edf3e8;color:#627359;font-size:11px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;line-height:1.45}
+.visual-meta{font-size:10px;color:#66745f;margin-top:7px;line-height:1.4}
+.visual-links{display:flex;gap:10px;margin-top:8px;font-size:11px;font-weight:800}
+.visual-links a{color:#426e11;text-decoration:none}
+
 .notice{font-size:10px;color:#899386;line-height:1.55;margin:12px 2px}
 .empty{padding:26px 15px;text-align:center;color:#829078;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:15px;line-height:1.55}
 .screen{display:none}
@@ -149,6 +163,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 .dest-pin{width:24px;height:24px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ea4335;transform:rotate(-45deg);box-shadow:0 2px 8px #0004}
 .park-pin{width:28px;height:28px;border:2.5px solid #ffffff;border-radius:50%;background:#1a73e8;color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center;box-shadow:0 3px 10px rgba(26,115,232,.4);cursor:pointer}
 .park-pin.active-pin{background:#15803d;transform:scale(1.16)}
+.mini-park-pin{width:22px;height:22px;border:2px solid white;border-radius:50%;background:#16a34a;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;box-shadow:0 2px 6px #0004}
 .nav-park-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.96);color:#1f2937;border:1.5px solid #93c5fd;border-radius:20px;padding:4px 10px 4px 4px;box-shadow:0 4px 12px rgba(15,23,42,.18);cursor:pointer;white-space:nowrap;transform:translate(-50%,-115%)}
 .nav-park-chip .chip-p{width:20px;height:20px;border-radius:50%;background:#1a73e8;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;flex:none}
 .nav-park-chip .chip-text{line-height:1.15;text-align:left}
@@ -190,14 +205,14 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 
       <div class="field">
         <label data-i="destLabel">你要去哪里？</label>
-        <input class="input" id="destInput" autocomplete="off" placeholder="Search mall, office, street or address (e.g. KL Gateway Mall)">
+        <input class="input" id="destInput" autocomplete="off" placeholder="Search restaurant, mall, office or address (e.g. Mitasu)">
         <div class="suggestions" id="destSuggest"></div>
         <div class="hint" id="destHint" data-i="destHint">输入至少 2 个字母，下拉列表将显示英文地点建议。</div>
       </div>
 
       <div class="locstatus">
         <span class="dot"></span>
-        <span id="geoStatus" data-i="geoIdle">定位和地址搜索统一采用英文地名输出；高精度定位会优先匹配 250m 内具体楼栋或商场名称。</span>
+        <span id="geoStatus" data-i="geoIdle">定位和地址搜索统一采用英文地名输出；三级召回优先匹配附近商场、商业广场与合规公共停车区。</span>
       </div>
 
       <button class="primary" id="findBtn" type="button" data-i="find">⌕ 查找附近停车区域</button>
@@ -206,7 +221,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 
     <div class="resultshead">
       <h3 data-i="near">附近公共/商场停车区域</h3>
-      <span class="subtle" data-i="closest">点击地图 P 标或列表查看详情</span>
+      <span class="subtle" data-i="closest">点击地图 P 标或卡片“可视图”查看详情</span>
     </div>
 
     <div class="zones">
@@ -237,7 +252,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
       <div class="empty" id="parkingEmptyInit" data-i="parkingInitEmpty">输入并确认目的地后，点击“查找附近停车区域”检索附近商场与公共停车场。</div>
     </div>
 
-    <p class="notice" data-i="disclaimer">已自动过滤私人住宅/公寓（Condo/Residence）停车场，优先推荐商场及合规公共停车区域（Zone A ≤500m，Zone B ≤1000m）。驾驶时请保持手机屏幕常亮。</p>
+    <p class="notice" data-i="disclaimer">已自动过滤私人住宅/公寓（Condo/Residence）停车场，优先推荐商场、周边商业体及合规公共停车区域（Zone A ≤500m，Zone B ≤1000m）。驾驶时请保持手机屏幕常亮。</p>
   </section>
 
   <section class="screen" id="exploreScreen">
@@ -249,12 +264,12 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
     <div class="panel">
       <h3 data-i="quickPlaces">常用地点</h3>
       <div class="simple-list">
+        <div class="simple-item" data-place="Mitasu">Mitasu<small>Old Klang Road, Taman Desa, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="KL Gateway Mall">KL Gateway Mall<small>2, Jalan Kerinchi, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="Mid Valley Megamall">Mid Valley Megamall<small>Lingkaran Syed Putra, Mid Valley City, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="Strata Office, Menara 1, KL Eco City">Strata Office · Menara 1 · KL Eco City<small>Kampung Haji Abdullah Hukum, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="The Gardens Mall">The Gardens Mall<small>Mid Valley City, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="NU Sentral">NU Sentral<small>Jalan Tun Sambanthan, Brickfields, Kuala Lumpur</small></div>
-        <div class="simple-item" data-place="Bangsar Village">Bangsar Village<small>Jalan Telawi 1, Bangsar, Kuala Lumpur</small></div>
       </div>
     </div>
   </section>
@@ -277,9 +292,9 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
     <div class="panel">
       <h3 data-i="profileTitle">我的</h3>
       <div class="profile-row"><span data-i="language">语言 / Language</span><button class="btn" id="profileLang" type="button">简体中文 / English</button></div>
-      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.7 Test</span></div>
+      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.8 Test</span></div>
       <div class="profile-row"><span data-i="mapSource">免费地图与停车数据源</span><span class="pill">OSM / Esri · Photon · Overpass · OSRM</span></div>
-      <p class="notice" data-i="profileNote">清爽明亮 Google Maps 日间柔和底图 + 白底蓝箭指示标 + 正向开阔前瞻视野（v3.7）。</p>
+      <p class="notice" data-i="profileNote">三级停车场召回（含周边商场/商业体借停与商圈兜底）+ 卡片「可视图」恢复 + 清爽日间导航视野（v3.8）。</p>
     </div>
   </section>
 
@@ -366,29 +381,29 @@ const I = {
     trip: '① 设置行程', originLabel: '出发点 / 当前定位', loc: '⌖ 重新定位',
     originHint: '初始留空；点击“重新定位”自动匹配英文楼宇/商场名，或手动输入并点选建议。',
     destLabel: '你要去哪里？', destHint: '输入至少 2 个字母，下拉列表将显示英文地点建议。',
-    geoIdle: '定位和地址搜索统一采用英文地名输出；高精度定位会优先匹配 250m 内具体楼栋或商场名称。',
+    geoIdle: '定位和地址搜索统一采用英文地名输出；三级召回优先匹配附近商场、商业广场与合规公共停车区。',
     find: '⌕ 查找附近停车区域', routeToDestination: '↗ 开始导航到目的地',
-    near: '附近公共/商场停车区域', closest: '点击地图 P 标或列表查看详情', all: '全部区域',
+    near: '附近公共/商场停车区域', closest: '点击地图 P 标或卡片“可视图”查看详情', all: '全部区域',
     parkingInitEmpty: '输入并确认目的地后，点击“查找附近停车区域”检索附近商场与公共停车场。',
-    parkingNoResult: '附近暂未检索到公开标注的商场或公共停车场，可直接点“开始导航到目的地”。',
+    parkingNoResult: '附近暂未检索到公开标注的停车场，可直接点“开始导航到目的地”。',
     parkingServiceFail: '停车场查询接口暂时繁忙或超时，请稍后再试或直接导航到目的地。',
     occupancyUnknown: '无实时空位传感器', straightDist: '直线距离', walkEst: '步行估算',
-    directions: '导航', focusOnMap: '地图定位', save: '收藏', savedState: '已收藏',
-    disclaimer: '已自动过滤私人住宅/公寓（Condo/Residence）停车场，优先推荐商场及合规公共停车区域（Zone A ≤500m，Zone B ≤1000m）。驾驶时请保持手机屏幕常亮。',
+    directions: '导航', focusOnMap: '地图定位', visualView: '可视图', hideVisual: '收起视图', save: '收藏', savedState: '已收藏',
+    disclaimer: '已自动过滤私人住宅/公寓（Condo/Residence）停车场，优先推荐商场、周边商业体及合规公共停车区域（Zone A ≤500m，Zone B ≤1000m）。驾驶时请保持手机屏幕常亮。',
     home: '首页', explore: '探索', saved: '收藏', activity: '动态', profile: '我的',
     exploreTitle: '探索附近', exploreText: '输入英文地点后，使用地址建议确认目的地。',
     startSearch: '开始搜索地点', quickPlaces: '常用地点', savedTitle: '收藏地点',
     noSaved: '你还没有收藏地点。搜索后可以收藏常用停车区域。', activityTitle: '最近动态',
     noActivity: '目前还没有活动记录。', profileTitle: '我的', language: '语言 / Language',
     version: '应用版本', mapSource: '免费地图与停车数据源',
-    profileNote: '清爽明亮 Google Maps 日间柔和底图 + 白底蓝箭指示标 + 正向开阔前瞻视野（v3.7）。',
+    profileNote: '三级停车场召回（含周边商场/商业体借停与商圈兜底）+ 卡片「可视图」恢复 + 清爽日间导航视野（v3.8）。',
     locating: '正在匹配 250m 内英文楼宇/商场名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入英文地点。',
     locDenied: '定位权限已被拒绝，请在浏览器设置中允许定位，或手动输入出发点。',
     locTimeout: '定位请求超时，请检查信号或稍后重试。',
     locApprox: '当前位置精度约 ±', meters: ' 米', searching: 'Searching places in English…',
     noResults: 'No matching place found. Add street, mall or city in English.',
     searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search temporarily unavailable.',
-    searchHintFull: 'Try e.g. KL Gateway Mall, Mid Valley Megamall, Menara 1.',
+    searchHintFull: 'Try e.g. Mitasu, KL Gateway Mall, Mid Valley Megamall.',
     destMissing: '请先输入目的地。', originMissing: '请先输入出发地点或使用定位。',
     savedToast: '已加入收藏', removedToast: '已取消收藏',
     routePreparing: '正在规划路线…', routeError: '暂时无法规划路线。请确认起终点后重试。',
@@ -411,29 +426,29 @@ const I = {
     trip: '① Plan your trip', originLabel: 'Starting point / Current location', loc: '⌖ Locate me',
     originHint: 'Starts blank; tap Locate me for English building/mall name or type manually.',
     destLabel: 'Where are you going?', destHint: 'Type at least 2 letters to see English place suggestions.',
-    geoIdle: 'All place lookups output English names; high-accuracy GPS resolves building/mall within 250m.',
+    geoIdle: '3-tier recall finds nearby malls, commercial complexes & public parking in English.',
     find: '⌕ Find nearby parking', routeToDestination: '↗ Start navigation to destination',
-    near: 'Public & Mall Parking Nearby', closest: 'Tap map P pins or list items for details', all: 'All zones',
+    near: 'Public & Mall Parking Nearby', closest: 'Tap map P pins or card Visual View for details', all: 'All zones',
     parkingInitEmpty: 'Confirm a destination, then tap "Find nearby parking" to search public & mall parking.',
-    parkingNoResult: 'No mapped public/mall parking found nearby. You can navigate to destination directly.',
+    parkingNoResult: 'No mapped parking found nearby. You can navigate to destination directly.',
     parkingServiceFail: 'Parking lookup is busy or timed out. Retry later or navigate to destination directly.',
     occupancyUnknown: 'No live bay sensor', straightDist: 'straight-line', walkEst: 'walk est.',
-    directions: 'Navigate', focusOnMap: 'Show on map', save: 'Save', savedState: 'Saved',
-    disclaimer: 'Private condo/residential parking is filtered out; public & mall parking prioritized (Zone A ≤500m, Zone B ≤1000m). Keep screen awake while driving.',
+    directions: 'Navigate', focusOnMap: 'Show on map', visualView: 'Visual view', hideVisual: 'Hide view', save: 'Save', savedState: 'Saved',
+    disclaimer: 'Private condo/residential parking is filtered out; malls, commercial complexes & public parking prioritized (Zone A ≤500m, Zone B ≤1000m).',
     home: 'Home', explore: 'Explore', saved: 'Saved', activity: 'Activity', profile: 'Profile',
     exploreTitle: 'Explore nearby', exploreText: 'Confirm destinations using English place suggestions.',
     startSearch: 'Search places', quickPlaces: 'Popular places', savedTitle: 'Saved places',
     noSaved: 'No saved places yet.', activityTitle: 'Recent activity',
     noActivity: 'No activity yet.', profileTitle: 'Profile', language: 'Language / Language',
     version: 'App version', mapSource: 'Free map & parking sources',
-    profileNote: 'Bright Google-style soft map + white puck blue arrow + upright clear view (v3.7).',
+    profileNote: '3-tier parking recall + per-card Visual View + bright daytime navigation view (v3.8).',
     locating: 'Resolving building/mall name within 250m in English…', locFail: 'Could not get location. Check permission or enter English place name.',
     locDenied: 'Location permission denied. Enable it in browser settings or enter origin manually.',
     locTimeout: 'Location request timed out. Check signal and try again.',
     locApprox: 'Location accuracy ~±', meters: ' m', searching: 'Searching places in English…',
     noResults: 'No matching place found. Add street, mall or city in English.',
     searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search service is temporarily unavailable.',
-    searchHintFull: 'Try e.g. KL Gateway Mall, Mid Valley Megamall, Menara 1.',
+    searchHintFull: 'Try e.g. Mitasu, KL Gateway Mall, Mid Valley Megamall.',
     destMissing: 'Enter a destination first.', originMissing: 'Enter a starting point or use location first.',
     savedToast: 'Added to Saved', removedToast: 'Removed from Saved',
     routePreparing: 'Planning route…', routeError: 'Could not plan route. Check origin and destination.',
@@ -566,7 +581,7 @@ function setCache(key, items) {
   if (placeCache.size > 80) placeCache.delete(placeCache.keys().next().value);
 }
 
-async function fetchJson(url, ms = 7500, externalSignal = null) {
+async function fetchJson(url, ms = 8500, externalSignal = null) {
   const controller = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, ms);
@@ -797,7 +812,7 @@ document.addEventListener('click', e => {
 setupAutocomplete('originInput', 'originSuggest', 'origin');
 setupAutocomplete('destInput', 'destSuggest', 'dest');
 
-async function raceOverpass(query, timeoutMs = 5500) {
+async function raceOverpass(query, timeoutMs = 8500) {
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter'
@@ -809,7 +824,7 @@ async function raceOverpass(query, timeoutMs = 5500) {
 async function reversePlaceName(lat, lon) {
   try {
     const q = `[out:json][timeout:5];(node(around:250,${lat},${lon})["name"]["office"];node(around:250,${lat},${lon})["name"]["shop"];node(around:250,${lat},${lon})["name"]["amenity"];way(around:250,${lat},${lon})["name"]["building"];relation(around:250,${lat},${lon})["name"]["building"];);out center tags 16;`;
-    const ov = await raceOverpass(q, 5200);
+    const ov = await raceOverpass(q, 5500);
     const pois = (ov.elements || []).map(el => {
       const pLat = Number(el.lat ?? el.center?.lat), pLon = Number(el.lon ?? el.center?.lon);
       const t = el.tags || {};
@@ -940,13 +955,14 @@ function isPublicOrMallParking(tags, rawName, distToDest) {
   if (PRIVATE_CONDO_REGEX.test(combined) && !/mall|megamall|retail|commercial|visitor|public/i.test(combined)) {
     return false;
   }
-  return distToDest <= 1400;
+  return distToDest <= 1550;
 }
 
 function buildClearParkingInfo(tags, destPoint, distToDest) {
   const rawName = toEnglishText(tags['name:en'] || tags.name || tags.operator || '');
   const pType = String(tags.parking || '').toLowerCase();
   const bType = String(tags.building || '').toLowerCase();
+  const isCommercialComplex = Boolean(tags.shop === 'mall' || tags.amenity === 'marketplace' || tags.tourism === 'hotel' || ['commercial', 'retail'].includes(bType));
   const destLabel = toEnglishText(destPoint?.label || '');
   const isMallTarget = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|centre|center|eco city|gateway/i.test(destLabel);
   const isOnsiteMall = isMallTarget && distToDest <= 260;
@@ -956,6 +972,9 @@ function buildClearParkingInfo(tags, destPoint, distToDest) {
   if (isOnsiteMall || pType === 'multi-storey' || pType === 'underground' || bType === 'parking') {
     categoryZh = isOnsiteMall ? '商场/综合体停车场' : '多层/地下公共停车场';
     categoryEn = isOnsiteMall ? 'Mall / Complex Car Park' : 'Multi-Storey / Underground Public Parking';
+  } else if (isCommercialComplex) {
+    categoryZh = '周边商业大厦/广场借停车场';
+    categoryEn = 'Nearby Commercial Complex Parking';
   } else if (pType === 'surface') {
     categoryZh = '露天公共停车场';
     categoryEn = 'Public Surface Parking Lot';
@@ -973,6 +992,8 @@ function buildClearParkingInfo(tags, destPoint, distToDest) {
     displayName = destLabel
       ? `${categoryEn} (${destLabel}${roadPart})`
       : `${categoryEn}${roadPart}`;
+  } else if (isCommercialComplex && !/parking|car\s*park/i.test(displayName)) {
+    displayName = `${displayName} · Commercial Car Park`;
   } else if (!/parking|car\s*park|basement|zone/i.test(displayName)) {
     displayName = `${displayName} · Car Park`;
   }
@@ -980,16 +1001,18 @@ function buildClearParkingInfo(tags, destPoint, distToDest) {
   return { displayName, categoryZh, categoryEn, isOnsiteMall };
 }
 
+/* 3-Tier Recall: (1) Overpass parking + nearby malls/commercial complexes, (2) Area/Street fallback, (3) Commercial/Roadside parking guide */
 async function queryParkingFast(point) {
   const cKey = `${point.lat.toFixed(3)},${point.lon.toFixed(3)}`;
   const cached = parkingCache.get(cKey);
   if (cached && (Date.now() - cached.time < 15 * 60 * 1000)) return cached.items;
 
-  const query = `[out:json][timeout:6];(node(around:1200,${point.lat},${point.lon})[amenity=parking];way(around:1200,${point.lat},${point.lon})[amenity=parking];relation(around:1200,${point.lat},${point.lon})[amenity=parking];way(around:450,${point.lat},${point.lon})[building=parking];relation(around:450,${point.lat},${point.lon})[building=parking];);out center tags 40;`;
+  // Tier 1: Search parking lots + nearby malls/commercial plazas/hotels within 1500m (for single shops like Mitasu)
+  const query = `[out:json][timeout:8];(node(around:1500,${point.lat},${point.lon})[amenity=parking];way(around:1500,${point.lat},${point.lon})[amenity=parking];relation(around:1500,${point.lat},${point.lon})[amenity=parking];way(around:650,${point.lat},${point.lon})[building=parking];node(around:1200,${point.lat},${point.lon})[shop=mall]["name"];way(around:1200,${point.lat},${point.lon})[shop=mall]["name"];way(around:1000,${point.lat},${point.lon})[building=commercial]["name"];node(around:900,${point.lat},${point.lon})[tourism=hotel]["name"];);out center tags 45;`;
 
   let rawElements = [];
   try {
-    const data = await raceOverpass(query, 6000);
+    const data = await raceOverpass(query, 8500);
     rawElements = data.elements || [];
   } catch (_) {}
 
@@ -1016,6 +1039,9 @@ async function queryParkingFast(point) {
   }).filter(Boolean);
 
   const destLabel = toEnglishText(point.label || '');
+  const detailParts = toEnglishText(point.detail || '').split(',').map(s => s.trim()).filter(Boolean);
+  const streetOrArea = detailParts.find(s => !/malaysia|kuala lumpur|selangor|federal territory/i.test(s)) || destLabel;
+
   const isMallDest = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|eco city|gateway/i.test(destLabel);
   if (isMallDest && !mapped.some(x => x._dist <= 160)) {
     mapped.unshift({
@@ -1035,27 +1061,60 @@ async function queryParkingFast(point) {
     });
   }
 
-  if (!mapped.length) {
+  // Tier 2: Area/Street Nominatim search for nearby plazas, malls & parking in the same district/road (e.g. "Taman Desa plaza" or "Old Klang Road parking")
+  if (mapped.length < 2 && streetOrArea) {
     try {
-      const qName = encodeURIComponent(`parking ${destLabel || 'Kuala Lumpur'}`);
+      const qName = encodeURIComponent(`plaza mall parking ${streetOrArea} Kuala Lumpur`);
       const nom = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&accept-language=en&limit=6&countrycodes=my&q=${qName}`, 6000);
       (nom || []).forEach((x, idx) => {
         const lat = Number(x.lat), lon = Number(x.lon);
+        const dist = distanceMeters({ lat, lon }, point);
         const rawName = toEnglishText(String(x.display_name || '').split(',')[0]);
-        if (Number.isFinite(lat) && Number.isFinite(lon) && !PRIVATE_CONDO_REGEX.test(rawName)) {
+        if (Number.isFinite(lat) && Number.isFinite(lon) && dist <= 2200 && !PRIVATE_CONDO_REGEX.test(rawName)) {
           mapped.push({
-            id: 'nom-p-' + idx, lat, lon,
-            name: rawName ? `${rawName} · Public Parking` : `Public Parking · ${destLabel}`,
-            shortName: 'Parking lot',
-            categoryZh: '公共/商业停车区域',
-            categoryEn: 'Public / Commercial Parking',
+            id: 'nom-area-' + idx, lat, lon,
+            name: rawName ? `${rawName} · Commercial / Public Parking` : `Public Parking · ${streetOrArea}`,
+            shortName: rawName || 'Commercial Parking',
+            categoryZh: '周边商圈/商业广场停车区',
+            categoryEn: 'Nearby Commercial Plaza Parking',
             isOnsiteMall: false,
             fee: '', access: 'public', parking: '', capacity: '',
-            _dist: distanceMeters({ lat, lon }, point)
+            _dist: dist
           });
         }
       });
     } catch (_) {}
+  }
+
+  // Tier 3: Commercial / Roadside parking zone fallback so single shops (like Mitasu) never return an empty dead-end
+  if (!mapped.length) {
+    const areaTitle = streetOrArea || destLabel || 'Destination Area';
+    mapped.push({
+      id: 'zone-front-' + cKey,
+      lat: point.lat,
+      lon: point.lon,
+      name: `${destLabel || areaTitle} · Commercial Frontage & Roadside Parking`,
+      shortName: 'Roadside / Shop Lot Parking',
+      categoryZh: '商业店屋门前 / 合规路侧公共车位（建议留意 DBKL/现场指示牌）',
+      categoryEn: 'Shop Lot Frontage & Public Roadside Bays',
+      isOnsiteMall: false,
+      fee: '', access: 'public', parking: 'street_side', capacity: '',
+      _dist: 25
+    });
+    if (streetOrArea && streetOrArea.toLowerCase() !== destLabel.toLowerCase()) {
+      mapped.push({
+        id: 'zone-road-' + cKey,
+        lat: point.lat + 0.0012,
+        lon: point.lon + 0.0012,
+        name: `${streetOrArea} · Public Street-Side Parking Zone`,
+        shortName: `${streetOrArea} Parking`,
+        categoryZh: '所在路段公共路边停车区',
+        categoryEn: 'Public Street-Side Parking Zone',
+        isOnsiteMall: false,
+        fee: '', access: 'public', parking: 'street_side', capacity: '',
+        _dist: 185
+      });
+    }
   }
 
   const deduped = new Map();
@@ -1090,6 +1149,61 @@ function renderParkingState(status) {
   $('parkingCards').innerHTML = `<div class="empty">${escapeHtml(tr(status === 'empty' ? 'parkingNoResult' : (status === 'error' ? 'parkingServiceFail' : 'parkingInitEmpty')))}</div>`;
 }
 
+/* --- Per-Card Visual Preview (Mini Map + Mapillary Street Thumb + External Links) --- */
+async function loadMapillaryThumb(lat, lon, boxEl) {
+  if (!boxEl) return;
+  try {
+    const bbox = `${lon - 0.0012},${lat - 0.0012},${lon + 0.0012},${lat + 0.0012}`;
+    const url = `https://graph.mapillary.com/images?fields=id,thumb_256_url,captured_at&bbox=${encodeURIComponent(bbox)}&limit=1&access_token=MLY|414243286490801|82d885e962b7e6d1c6e73f0e06a2e0e1`;
+    const data = await fetchJson(url, 6000);
+    const img = data?.data?.[0];
+    if (img?.thumb_256_url) {
+      boxEl.innerHTML = `<img class="visual-photo" src="${escapeHtml(img.thumb_256_url)}" alt="Street preview" loading="lazy">`;
+      return;
+    }
+  } catch (_) {}
+  boxEl.innerHTML = `<div class="visual-placeholder">${language === 'zh' ? '该点位暂无免费街景照片<br>可点下方链接打开地图/街景' : 'No free street photo nearby<br>Use links below to inspect'}</div>`;
+}
+
+const miniMaps = new Map();
+function toggleCardVisual(card, p, dest) {
+  const vis = card.querySelector('.card-visual');
+  const idx = card.dataset.cardIdx;
+  if (!vis) return;
+  const willOpen = !vis.classList.contains('open');
+  vis.classList.toggle('open', willOpen);
+  const btn = card.querySelector('.visual-toggle-btn');
+  if (btn) btn.textContent = willOpen ? `▾ ${tr('hideVisual')}` : `◈ ${tr('visualView')}`;
+
+  if (!willOpen) return;
+  const mapDiv = vis.querySelector(`#miniMap_${idx}`);
+  const streetBox = vis.querySelector(`#streetBox_${idx}`);
+
+  if (mapDiv && typeof L !== 'undefined') {
+    if (miniMaps.has(idx)) {
+      miniMaps.get(idx).remove();
+      miniMaps.delete(idx);
+    }
+    const m = L.map(mapDiv, { zoomControl: false, attributionControl: false }).setView([p.lat, p.lon], 16);
+    addFreeTileLayer(m);
+    if (dest && Number.isFinite(dest.lat) && Number.isFinite(dest.lon)) {
+      L.marker([dest.lat, dest.lon], {
+        icon: L.divIcon({ className: '', html: '<div class="dest-pin"></div>', iconSize: [24, 24], iconAnchor: [12, 24] })
+      }).addTo(m);
+      L.polyline([[dest.lat, dest.lon], [p.lat, p.lon]], { color: '#16a34a', weight: 3, dashArray: '5,5' }).addTo(m);
+      L.circle([dest.lat, dest.lon], { radius: 500, color: '#4e7e08', weight: 1, fillOpacity: 0.05 }).addTo(m);
+      m.fitBounds([[dest.lat, dest.lon], [p.lat, p.lon]], { padding: [24, 24], maxZoom: 17 });
+    }
+    L.marker([p.lat, p.lon], {
+      icon: L.divIcon({ className: '', html: '<div class="mini-park-pin">P</div>', iconSize: [22, 22], iconAnchor: [11, 11] })
+    }).addTo(m);
+    miniMaps.set(idx, m);
+    setTimeout(() => m.invalidateSize(), 120);
+  }
+  loadMapillaryThumb(p.lat, p.lon, streetBox);
+}
+
+/* --- Overview Interactive Map with Clickable P Markers --- */
 let overviewMap = null, overviewMarkers = [], activePoiItem = null;
 
 function openOverviewPoiSheet(p, dest, idx) {
@@ -1186,6 +1300,8 @@ function renderOverviewMap(items, destination) {
 
 function renderParkingResults(items, destination) {
   lastParkingStatus = 'ok'; lastParkingItems = items; lastParkingDest = destination;
+  miniMaps.forEach(m => m.remove());
+  miniMaps.clear();
   const box = $('parkingCards');
   box.innerHTML = '';
   if (!items.length) { renderParkingState('empty'); return; }
@@ -1198,6 +1314,8 @@ function renderParkingResults(items, destination) {
     const walkMin = Math.max(1, Math.round(dist / 75));
     const isSaved = savedItems.includes(p.name);
     const distText = dist >= 1000 ? (dist / 1000).toFixed(1) + ' km' : Math.round(dist) + ' m';
+    const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat + ',' + p.lon)}`;
+    const wazeUrl = `https://waze.com/ul?ll=${encodeURIComponent(p.lat + ',' + p.lon)}&navigate=yes`;
     const card = document.createElement('article');
     card.className = 'parking';
     card.dataset.cardZone = zone;
@@ -1211,10 +1329,27 @@ function renderParkingResults(items, destination) {
       </div>
       <span class="tag">ZONE ${zone}</span>
       <div class="cardaction">
+        <button class="textbtn visual-toggle-btn" type="button">◈ ${escapeHtml(tr('visualView'))}</button>
         <button class="textbtn focus-map-btn" type="button">◎ ${escapeHtml(tr('focusOnMap'))}</button>
         <button class="textbtn save-btn" type="button" data-save-name="${escapeHtml(p.name)}">${isSaved ? '♥' : '♡'} <span>${isSaved ? escapeHtml(tr('savedState')) : escapeHtml(tr('save'))}</span></button>
         <button class="textbtn" type="button" data-nav-lat="${p.lat}" data-nav-lon="${p.lon}" data-nav-name="${escapeHtml(p.name)}">↗ ${escapeHtml(tr('directions'))}</button>
+      </div>
+      <div class="card-visual gmaps-soft-tiles">
+        <div class="visual-grid">
+          <div class="visual-map" id="miniMap_${idx}"></div>
+          <div class="visual-street">
+            <div id="streetBox_${idx}"><div class="visual-placeholder">${language === 'zh' ? '正在查询周边实景…' : 'Loading preview…'}</div></div>
+            <div>
+              <div class="visual-meta">${language === 'zh' ? '绿线：距目的地直线连线 · 圆圈：500m 范围' : 'Green line: direct distance · Circle: 500m'}</div>
+              <div class="visual-links">
+                <a href="${gmapsUrl}" target="_blank" rel="noopener">Google Maps ↗</a>
+                <a href="${wazeUrl}" target="_blank" rel="noopener">Waze ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>`;
+    card.querySelector('.visual-toggle-btn').onclick = () => toggleCardVisual(card, p, destination);
     card.querySelector('.focus-map-btn').onclick = () => {
       openOverviewPoiSheet(p, destination, idx);
       $('overviewWrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1227,7 +1362,7 @@ function renderParkingResults(items, destination) {
 
 $('findBtn').onclick = async () => {
   const btn = $('findBtn'); btn.disabled = true; const orig = btn.textContent;
-  btn.textContent = language === 'zh' ? '正在快速检索商场与公共停车场…' : 'Searching mall & public parking…';
+  btn.textContent = language === 'zh' ? '正在检索附近商场、商业广场与公共车位…' : 'Searching nearby malls & public parking…';
   try {
     const dest = await resolveInputPoint('dest');
     const sorted = await queryParkingFast(dest);
@@ -1290,7 +1425,6 @@ function setArrowHeading(deg) {
   }
 }
 
-/* Pan camera slightly ahead of current heading so driver sees ~65% forward road view */
 function panWithLookAhead(pos, headingDeg) {
   if (!navMap || !followCamera) return;
   const h = Number.isFinite(headingDeg) ? headingDeg : 0;
