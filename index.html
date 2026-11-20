@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a8e629">
-<title>ParkFinder MY · v3.0 Test</title>
+<title>ParkFinder MY · v3.1 Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--lime:#a8e629;--lime-dark:#4e7e08;--ink:#17251b;--muted:#758174;--line:#e7ece4;--bg:#f5f7f3;--soft:#f0f6e9;--white:#fff;--shadow:0 8px 26px rgba(23,37,27,.055)}
@@ -63,11 +63,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .screen{display:none}
 .screen.active{display:block}
 .nav{position:fixed;z-index:30;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(16px);border-top:1px solid #e7ece4;display:flex;justify-content:space-around;padding:9px 7px calc(9px + env(safe-area-inset-bottom));max-width:760px;margin:auto}
+body.nav-mode .nav,body.nav-mode .app>.top,body.nav-mode .app>.hero,body.nav-mode .app>.foot{display:none}
+body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 .nav button{border:0;background:none;min-width:54px;color:#98a192;font-size:10px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
 .nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8}
 .nav button.active{color:#54870d;font-weight:900}
 .nav button.active svg{stroke-width:2.4}
-.toast{position:fixed;z-index:50;left:50%;bottom:82px;transform:translateX(-50%);background:#243322;color:white;padding:11px 15px;border-radius:12px;font-size:12px;max-width:90%;display:none}
+.toast{position:fixed;z-index:90;left:50%;bottom:96px;transform:translateX(-50%);background:#243322;color:white;padding:11px 15px;border-radius:12px;font-size:12px;max-width:90%;display:none}
 .toast.show{display:block}
 .simple-list{display:grid;gap:9px}
 .simple-item{padding:14px;border:1px solid var(--line);border-radius:14px;background:white;font-size:13px;cursor:pointer}
@@ -78,37 +80,39 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .maplink{color:#4e7e08;font-weight:800;text-decoration:none}
 .foot{font-size:10px;color:#929b8d;text-align:center;margin:16px 0 0}
 
-/* Live GPS Car HUD */
-#navigationScreen .panel{padding:12px}
-.navtop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.navtop-left{display:flex;align-items:center;gap:8px}
-.backnav{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 11px;color:var(--ink);font-weight:800;font-size:12px;cursor:pointer}
-.navtitle{font-size:15px;font-weight:900}
-.voicebtn{border:1px solid #dce8ce;background:#f4f8ee;color:#426e11;border-radius:12px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer}
-.turn-banner{background:#12243d;color:#fff;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;box-shadow:0 8px 20px rgba(18,36,61,.2)}
-.turn-arrow-box{width:56px;height:56px;border-radius:14px;background:#1e78ff;color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900;flex:none;box-shadow:0 4px 12px rgba(30,120,255,.4)}
-.turn-info{min-width:0;flex:1}
-.turn-dist{font-size:23px;font-weight:900;color:#7ec0ff;line-height:1.1}
-.turn-text{font-size:16px;font-weight:800;margin-top:3px;line-height:1.3}
-.turn-sub{font-size:11px;color:#bfd5f2;margin-top:4px}
-#routeMap{height:48vh;min-height:300px;border-radius:16px;overflow:hidden;background:#e8eee3;position:relative}
-.navmeta{display:flex;gap:10px;margin:10px 0}
-.navmetric{flex:1;background:#f4f8ee;border-radius:13px;padding:10px 12px}
-.navmetric strong{display:block;font-size:17px;color:#426e11}
-.navmetric span{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+/* Fullscreen Google Maps-style Navigation HUD */
+#navigationScreen.active{position:fixed;inset:0;z-index:60;width:100vw;height:100dvh;overflow:hidden;background:#e8eee3}
+#routeMap{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.hud-top{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;z-index:70;pointer-events:none}
+.hud-main-turn{background:#0b5d43;color:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px rgba(0,0,0,.28);pointer-events:auto}
+.hud-turn-arrow{width:46px;height:46px;display:grid;place-items:center;font-size:34px;font-weight:900;flex:none;line-height:1}
+.hud-turn-body{flex:1;min-width:0}
+.hud-turn-dist{font-size:18px;font-weight:800;color:#d6f5e8;line-height:1.15}
+.hud-turn-road{font-size:21px;font-weight:900;line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-next-pill{display:inline-flex;align-items:center;gap:6px;background:#084632;color:#e8f8f1;border-radius:10px;padding:6px 11px;margin-top:6px;font-size:13px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.hud-right-tools{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:70;display:flex;flex-direction:column;gap:10px}
+.hud-circle-btn{width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#1f2937;box-shadow:0 4px 14px rgba(0,0,0,.2);font-size:18px;font-weight:800;display:grid;place-items:center;cursor:pointer}
+.hud-circle-btn.active{background:#1e78ff;color:#fff}
+.hud-speed{position:fixed;left:14px;bottom:calc(126px + env(safe-area-inset-bottom));z-index:70;width:64px;height:64px;border-radius:50%;background:#fff;border:3px solid #1e78ff;box-shadow:0 4px 14px rgba(0,0,0,.2);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.hud-speed strong{font-size:18px;font-weight:900;color:#111827}
+.hud-speed span{font-size:10px;color:#6b7280;font-weight:700}
+.hud-recenter{position:fixed;right:14px;bottom:calc(126px + env(safe-area-inset-bottom));z-index:70;width:48px;height:48px;border-radius:50%;border:0;background:#fff;color:#1e78ff;box-shadow:0 4px 14px rgba(0,0,0,.2);font-size:20px;font-weight:900;display:grid;place-items:center;cursor:pointer}
+.hud-bottom{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top-left-radius:22px;border-top-right-radius:22px;padding:12px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.16);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hud-close{width:44px;height:44px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:20px;font-weight:800;display:grid;place-items:center;cursor:pointer;flex:none}
+.hud-trip-summary{text-align:center;flex:1;min-width:0}
+.hud-eta-main{font-size:22px;font-weight:900;color:#15803d;line-height:1.15}
+.hud-eta-sub{font-size:12px;color:#4b5563;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-status-line{font-size:10px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-more{width:44px;height:44px;border-radius:50%;border:1px solid #e5e7eb;background:#f9fafb;color:#1e78ff;font-size:18px;font-weight:800;display:grid;place-items:center;cursor:pointer;flex:none}
+.hud-steps-drawer{position:fixed;left:12px;right:12px;bottom:calc(104px + env(safe-area-inset-bottom));z-index:75;background:#fff;border-radius:16px;padding:12px;box-shadow:0 10px 28px rgba(0,0,0,.25);max-height:42dvh;overflow-y:auto;display:none}
+.hud-steps-drawer.open{display:block}
+.step-item{font-size:12px;padding:8px 9px;border-radius:10px;display:flex;justify-content:space-between;gap:8px;color:#374151}
+.step-item.active-step{background:#e7f2ff;color:#0e47a1;font-weight:800}
 
 /* Blue Direction Arrow Marker */
-.blue-nav-wrap{width:46px;height:46px;display:grid;place-items:center}
-.blue-nav-arrow{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#3d94ff 0%,#1466e6 100%);border:3px solid #ffffff;box-shadow:0 4px 14px rgba(20,102,230,.55);display:grid;place-items:center;color:#ffffff;font-size:20px;font-weight:900;transition:transform .2s linear}
+.blue-nav-wrap{width:48px;height:48px;display:grid;place-items:center}
+.blue-nav-arrow{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#3d94ff 0%,#1466e6 100%);border:3px solid #ffffff;box-shadow:0 4px 14px rgba(20,102,230,.55);display:grid;place-items:center;color:#ffffff;font-size:21px;font-weight:900;transition:transform .2s linear}
 .dest-pin{width:22px;height:22px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ef554d;transform:rotate(-45deg);box-shadow:0 2px 8px #0005}
-.navactions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px}
-.navactions button{padding:13px;border-radius:12px;border:1px solid var(--line);font-weight:850;font-size:13px;background:white;color:var(--ink);cursor:pointer}
-.navactions .endnav{background:#fff2f0;color:#a23b30;border-color:#f2d8d4}
-.steps-box{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;max-height:185px;overflow-y:auto}
-.step-item{font-size:12px;padding:8px 9px;border-radius:10px;display:flex;justify-content:space-between;gap:8px;color:#4f5d49}
-.step-item.active-step{background:#e7f2ff;color:#0e47a1;font-weight:800}
-.map-attribution{font-size:9px;color:#8a9384;margin-top:8px;line-height:1.4}
-@media(min-width:650px){.app{padding-top:24px}.hero h2{font-size:28px}.panel{padding:20px}#routeMap{height:52vh}}
 </style>
 </head>
 <body>
@@ -215,51 +219,55 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
     <div class="panel">
       <h3 data-i="profileTitle">我的</h3>
       <div class="profile-row"><span data-i="language">语言 / Language</span><button class="btn" id="profileLang" type="button">简体中文 / English</button></div>
-      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.0 Test</span></div>
+      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.1 Test</span></div>
       <div class="profile-row"><span data-i="mapSource">地点与停车数据源</span><span class="pill">Photon · Nominatim · Overpass · OSRM</span></div>
-      <p class="notice" data-i="profileNote">纯真实 GPS 实况导航版本（v3.0）。</p>
+      <p class="notice" data-i="profileNote">全屏 Google Maps 风格实况导航版本（v3.1）。</p>
     </div>
   </section>
 
   <section class="screen" id="navigationScreen">
-    <div class="panel">
-      <div class="navtop">
-        <div class="navtop-left">
-          <button class="backnav" id="backFromNav" type="button">← <span data-i="back">返回</span></button>
-          <div class="navtitle" data-i="navigation">实况 GPS 导航</div>
-        </div>
-        <button class="voicebtn" id="voiceBtn" type="button">🔊 语音：开</button>
-      </div>
+    <div id="routeMap" aria-label="Navigation map"></div>
 
-      <div class="turn-banner">
-        <div class="turn-arrow-box" id="turnSymbol">↑</div>
-        <div class="turn-info">
-          <div class="turn-dist" id="nextStepDist">—</div>
-          <div class="turn-text" id="nextManeuver">正在规划路线…</div>
-          <div class="turn-sub" id="navProgress">等待接收实况 GPS 信号</div>
+    <div class="hud-top">
+      <div class="hud-main-turn">
+        <div class="hud-turn-arrow" id="turnSymbol">↑</div>
+        <div class="hud-turn-body">
+          <div class="hud-turn-dist" id="nextStepDist">—</div>
+          <div class="hud-turn-road" id="nextManeuver">正在规划路线…</div>
+          <div class="hud-next-pill" id="thenNextPill">
+            <span>然后</span>
+            <span id="thenNextArrow">↱</span>
+            <span id="thenNextText">—</span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div id="routeMap" aria-label="Navigation map"></div>
+    <div class="hud-right-tools">
+      <button class="hud-circle-btn active" id="voiceBtn" type="button" title="语音">🔊</button>
+      <button class="hud-circle-btn" id="stepsToggleBtn" type="button" title="路线步骤">☰</button>
+    </div>
 
-      <div class="navmeta">
-        <div class="navmetric">
-          <strong id="routeDistance">—</strong>
-          <span data-i="remainingDistance">剩余路线距离</span>
-        </div>
-        <div class="navmetric">
-          <strong id="routeEta">—</strong>
-          <span data-i="estimatedArrival">估算剩余车程</span>
-        </div>
+    <div class="hud-speed" id="speedBox">
+      <strong id="speedVal">--</strong>
+      <span>km/h</span>
+    </div>
+
+    <button class="hud-recenter" id="recenterNav" type="button" title="跟随当前位置">⌖</button>
+
+    <div class="hud-steps-drawer" id="stepsDrawer">
+      <div id="stepsList"></div>
+      <div class="map-attribution" style="margin-top:8px">Tiles © Esri · Place/Parking © OpenStreetMap · Routing © OSRM</div>
+    </div>
+
+    <div class="hud-bottom">
+      <button class="hud-close" id="endNav" type="button" aria-label="结束导航">✕</button>
+      <div class="hud-trip-summary">
+        <div class="hud-eta-main" id="routeEta">—</div>
+        <div class="hud-eta-sub"><span id="routeDistance">—</span> · <span id="arrivalClock">—</span></div>
+        <div class="hud-status-line" id="navProgress">等待接收实况 GPS 信号</div>
       </div>
-
-      <div class="navactions">
-        <button id="recenterNav" type="button">⌖ 锁定蓝箭位置</button>
-        <button class="endnav" id="endNav" type="button">结束导航</button>
-      </div>
-
-      <div class="steps-box" id="stepsList"></div>
-      <div class="map-attribution">Tiles © Esri · Place/Parking © OpenStreetMap · Routing © OSRM</div>
+      <button class="hud-more" id="hudStepsBtn" type="button" aria-label="步骤">≡</button>
     </div>
   </section>
 
@@ -296,14 +304,14 @@ const I = {
     parkingServiceFail: '停车场查询接口暂时繁忙或超时，请稍后再试或直接导航到目的地。',
     occupancyUnknown: '空位情况未知', straightDist: '直线距离', walkEst: '步行估算',
     directions: '导航', save: '收藏', savedState: '已收藏',
-    disclaimer: '停车场资料来自 OpenStreetMap 公开数据，不代表实时空位。导航完全依赖设备实况 GPS 位置与航向报告，请保持屏幕常亮。',
+    disclaimer: '停车场资料来自 OpenStreetMap 公开数据，不代表实时空位。驾驶时请保持手机屏幕常亮并允许高精度定位。',
     home: '首页', explore: '探索', saved: '收藏', activity: '动态', profile: '我的',
     exploreTitle: '探索附近', exploreText: '输入地点后，使用地址建议确认目的地。',
     startSearch: '开始搜索地点', quickPlaces: '常用地点', savedTitle: '收藏地点',
     noSaved: '你还没有收藏地点。搜索后可以收藏常用停车区域。', activityTitle: '最近动态',
     noActivity: '目前还没有活动记录。', profileTitle: '我的', language: '语言 / Language',
     version: '应用版本', mapSource: '地点与停车数据源',
-    profileNote: '纯真实 GPS 实况导航版本（v3.0）。',
+    profileNote: '全屏 Google Maps 风格实况导航版本（v3.1）。',
     locating: '正在获取当前地方名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入地点。',
     locDenied: '定位权限已被拒绝，请在浏览器设置中允许定位，或手动输入出发点。',
     locTimeout: '定位请求超时，请检查信号或稍后重试。',
@@ -312,14 +320,14 @@ const I = {
     searchTimeout: '地点搜索请求超时，请稍后重试。', searchError: '地点搜索服务暂时不可用，请稍后重试。',
     searchHintFull: '试试加入区域和城市，例如 KL Gateway Residence, Kuala Lumpur。',
     destMissing: '请先输入目的地。', originMissing: '请先输入出发地点或使用定位。',
-    savedToast: '已加入收藏', removedToast: '已取消收藏', back: '返回',
-    navigation: '实况 GPS 导航', remainingDistance: '剩余路线距离',
-    estimatedArrival: '估算剩余车程', routePreparing: '正在规划路线…',
-    routeError: '暂时无法规划路线。请确认起终点后重试。', routeSearching: '正在规划路线…',
-    routeReady: '已启动实况 GPS 追踪，行驶时蓝色箭头将随实际位置更新。',
+    savedToast: '已加入收藏', removedToast: '已取消收藏',
+    remainingDistance: '剩余路线距离', estimatedArrival: '估算剩余车程',
+    routePreparing: '正在规划路线…', routeError: '暂时无法规划路线。请确认起终点后重试。',
+    routeSearching: '正在规划路线…',
+    routeReady: '实况 GPS 已启动，蓝色箭头将随实际位置更新。',
     routeOffRoute: '检测到偏离路线，正在按当前实况位置重新规划…',
-    routeGps: '实况 GPS 定位中',
-    routeTo: '前往：', routeStart: '出发行驶', routeArrive: '已到达目的地附近',
+    routeGps: '实况 GPS 定位中', routeTo: '前往：',
+    routeStart: '出发行驶', routeArrive: '已到达目的地附近',
     routeStraight: '继续直行', routeLeft: '向左转', routeRight: '向右转',
     routeRoundabout: '进入环岛', routeContinue: '继续沿道路行驶',
     navPermission: '请允许浏览器定位权限，以便按实际行驶位置报告。', noGeo: '当前浏览器不支持定位。',
@@ -346,7 +354,7 @@ const I = {
     noSaved: 'No saved places yet.', activityTitle: 'Recent activity',
     noActivity: 'No activity yet.', profileTitle: 'Profile', language: 'Language / Language',
     version: 'App version', mapSource: 'Place & parking sources',
-    profileNote: 'Pure live GPS navigation build (v3.0).',
+    profileNote: 'Fullscreen live GPS navigation build (v3.1).',
     locating: 'Getting current place name…', locFail: 'Could not get location. Check permission or enter place manually.',
     locDenied: 'Location permission denied. Enable it in browser settings or enter origin manually.',
     locTimeout: 'Location request timed out. Check signal and try again.',
@@ -355,14 +363,14 @@ const I = {
     searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search service is temporarily unavailable.',
     searchHintFull: 'Add area and city, e.g. KL Gateway Residence, Kuala Lumpur.',
     destMissing: 'Enter a destination first.', originMissing: 'Enter a starting point or use location first.',
-    savedToast: 'Added to Saved', removedToast: 'Removed from Saved', back: 'Back',
-    navigation: 'Live GPS Navigation', remainingDistance: 'Remaining distance',
-    estimatedArrival: 'Est. remaining time', routePreparing: 'Planning route…',
-    routeError: 'Could not plan route. Check origin and destination.', routeSearching: 'Planning route…',
-    routeReady: 'Live GPS tracking active. Blue arrow updates with your real position.',
+    savedToast: 'Added to Saved', removedToast: 'Removed from Saved',
+    remainingDistance: 'Remaining distance', estimatedArrival: 'Est. remaining time',
+    routePreparing: 'Planning route…', routeError: 'Could not plan route. Check origin and destination.',
+    routeSearching: 'Planning route…',
+    routeReady: 'Live GPS active. Blue arrow tracks your real movement.',
     routeOffRoute: 'Off route detected. Recalculating from live GPS…',
-    routeGps: 'Live GPS active',
-    routeTo: 'To: ', routeStart: 'Depart', routeArrive: 'Arrived near destination',
+    routeGps: 'Live GPS active', routeTo: 'To: ',
+    routeStart: 'Depart', routeArrive: 'Arrived near destination',
     routeStraight: 'Go straight', routeLeft: 'Turn left', routeRight: 'Turn right',
     routeRoundabout: 'Enter roundabout', routeContinue: 'Continue along road',
     navPermission: 'Allow location permission to report based on your actual position.', noGeo: 'Geolocation is not supported by this browser.',
@@ -413,9 +421,7 @@ function setLanguage(l) {
   });
   $('langBtn').textContent = tr('langName');
   $('profileLang').textContent = l === 'zh' ? '简体中文 / English' : 'English / 简体中文';
-  $('voiceBtn').textContent = language === 'zh'
-    ? (voiceEnabled ? '🔊 语音：开' : '🔇 语音：关')
-    : (voiceEnabled ? '🔊 Voice: On' : '🔇 Voice: Off');
+  $('voiceBtn').textContent = voiceEnabled ? '🔊' : '🔇';
   renderSaved();
   renderActivity();
   if (lastParkingStatus === 'ok' && lastParkingDest) renderParkingResults(lastParkingItems, lastParkingDest);
@@ -426,9 +432,9 @@ $('langBtn').onclick = () => setLanguage(language === 'zh' ? 'en' : 'zh');
 $('profileLang').onclick = () => setLanguage(language === 'zh' ? 'en' : 'zh');
 $('voiceBtn').onclick = () => {
   voiceEnabled = !voiceEnabled;
-  $('voiceBtn').textContent = language === 'zh'
-    ? (voiceEnabled ? '🔊 语音：开' : '🔇 语音：关')
-    : (voiceEnabled ? '🔊 Voice: On' : '🔇 Voice: Off');
+  $('voiceBtn').textContent = voiceEnabled ? '🔊' : '🔇';
+  $('voiceBtn').classList.toggle('active', voiceEnabled);
+  toast(voiceEnabled ? (language === 'zh' ? '语音播报已开启' : 'Voice on') : (language === 'zh' ? '语音播报已关闭' : 'Voice off'));
   if (voiceEnabled) speakInstruction($('nextManeuver').textContent);
 };
 
@@ -437,8 +443,13 @@ function showScreen(name) {
   const target = $(name + 'Screen');
   if (target) target.classList.add('active');
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b.dataset.screen === name));
-  if (name !== 'navigation') stopNavigation();
-  else if (navMap) setTimeout(() => navMap.invalidateSize(), 180);
+  document.body.classList.toggle('nav-mode', name === 'navigation');
+  if (name !== 'navigation') {
+    $('stepsDrawer').classList.remove('open');
+    stopNavigation();
+  } else if (navMap) {
+    setTimeout(() => navMap.invalidateSize(), 180);
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -903,6 +914,11 @@ function maneuverMeta(step) {
   return { symbol: '↑', label: tr('routeStraight') };
 }
 
+function formatArrivalClock(secondsLeft) {
+  const d = new Date(Date.now() + Math.max(0, Number(secondsLeft) || 0) * 1000);
+  return d.toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 function renderStepsList() {
   const box = $('stepsList');
   if (!box) return;
@@ -919,21 +935,20 @@ function makeBlueArrowIcon() {
   return L.divIcon({
     className: '',
     html: `<div class="blue-nav-wrap"><div class="blue-nav-arrow" id="blueArrowEl" style="transform:rotate(0deg)">➤</div></div>`,
-    iconSize: [46, 46],
-    iconAnchor: [23, 23]
+    iconSize: [48, 48],
+    iconAnchor: [24, 24]
   });
 }
 
 function setBlueArrowHeading(deg) {
   const el = document.getElementById('blueArrowEl');
-  // ➤ points right (90deg) by default, so subtract 90deg to align with true north bearing
   if (el && Number.isFinite(deg)) el.style.transform = `rotate(${Math.round(deg - 90)}deg)`;
 }
 
 function initNavMap(origin, target) {
   if (typeof L === 'undefined') throw new Error('leaflet-missing');
   if (!navMap) {
-    navMap = L.map('routeMap', { zoomControl: true }).setView([origin.lat, origin.lon], 17);
+    navMap = L.map('routeMap', { zoomControl: false }).setView([origin.lat, origin.lon], 17);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles © Esri' })
       .addTo(navMap).on('tileerror', () => { $('navProgress').textContent = language === 'zh' ? '地图底图加载失败，请检查网络。' : 'Map tiles failed to load.'; });
   } else navMap.setView([origin.lat, origin.lon], 17);
@@ -958,6 +973,16 @@ function updateManeuver(here = null, forceSpeak = false) {
   if (here && loc) dMeter = distanceMeters(here, { lat: loc[1], lon: loc[0] });
   $('nextStepDist').textContent = dMeter >= 1000 ? (dMeter / 1000).toFixed(1) + ' km' : Math.max(0, Math.round(dMeter)) + ' m';
 
+  const nextStep = currentRouteSteps[stepIndex + 1];
+  if (nextStep) {
+    const nmm = maneuverMeta(nextStep);
+    $('thenNextPill').style.display = 'inline-flex';
+    $('thenNextArrow').textContent = nmm.symbol;
+    $('thenNextText').textContent = nextStep.name || nmm.label;
+  } else {
+    $('thenNextPill').style.display = 'none';
+  }
+
   renderStepsList();
   if (forceSpeak || lastSpokenIndex !== stepIndex) {
     lastSpokenIndex = stepIndex;
@@ -971,13 +996,15 @@ async function drawRoute(origin, target) {
   if (data.code !== 'Ok' || !data.routes?.length) throw new Error('no-route');
   const route = data.routes[0];
   if (routeLine) navMap.removeLayer(routeLine);
-  routeLine = L.geoJSON(route.geometry, { style: { color: '#1e78ff', weight: 7, opacity: 0.9 } }).addTo(navMap);
+  routeLine = L.geoJSON(route.geometry, { style: { color: '#1e78ff', weight: 8, opacity: 0.92 } }).addTo(navMap);
   navMap.setView([origin.lat, origin.lon], 17);
   currentRouteSteps = route.legs?.[0]?.steps || [];
   stepIndex = 0; lastSpokenIndex = -1; activeRoute = route;
   updateManeuver(origin, true);
+  const mins = Math.max(1, Math.round(route.duration / 60));
   $('routeDistance').textContent = route.distance >= 1000 ? (route.distance / 1000).toFixed(1) + ' km' : Math.round(route.distance) + ' m';
-  $('routeEta').textContent = Math.max(1, Math.round(route.duration / 60)) + ' min';
+  $('routeEta').textContent = mins + (language === 'zh' ? ' 分钟' : ' min');
+  $('arrivalClock').textContent = formatArrivalClock(route.duration);
   $('navProgress').textContent = tr('routeReady');
   return route;
 }
@@ -1018,9 +1045,11 @@ function updateRemainingMetrics(p) {
   if (!Number.isFinite(rem)) return;
   const total = Number(activeRoute.distance) || 1;
   const ratio = Math.max(0, Math.min(1, rem / total));
-  const mins = Math.max(0, Math.round((Number(activeRoute.duration) || 0) * ratio / 60));
+  const secLeft = (Number(activeRoute.duration) || 0) * ratio;
+  const mins = Math.max(0, Math.round(secLeft / 60));
   $('routeDistance').textContent = rem >= 1000 ? (rem / 1000).toFixed(1) + ' km' : Math.round(rem) + ' m';
-  $('routeEta').textContent = mins + ' min';
+  $('routeEta').textContent = mins + (language === 'zh' ? ' 分钟' : ' min');
+  $('arrivalClock').textContent = formatArrivalClock(secLeft);
 }
 
 async function rerouteFrom(here) {
@@ -1042,6 +1071,7 @@ async function startNavigation(target, origin) {
     if (!target || !Number.isFinite(target.lat) || !Number.isFinite(target.lon)) throw new Error('bad-target');
     stopNavigation();
     followCamera = true;
+    $('speedVal').textContent = '--';
     toast(tr('routeSearching'));
     navTarget = target;
     lastNavPoint = { lat: origin.lat, lon: origin.lon };
@@ -1056,9 +1086,12 @@ async function startNavigation(target, origin) {
         async pos => {
           const here = { lat: pos.coords.latitude, lon: pos.coords.longitude };
           const acc = Math.round(pos.coords.accuracy || 100);
-          const speedKmh = Number.isFinite(pos.coords.speed) && pos.coords.speed > 0
-            ? Math.round(pos.coords.speed * 3.6) + ' km/h'
-            : '';
+          if (Number.isFinite(pos.coords.speed) && pos.coords.speed >= 0) {
+            $('speedVal').textContent = String(Math.round(pos.coords.speed * 3.6));
+          } else if (lastNavPoint && pos.timestamp) {
+            const dt = (pos.timestamp - (lastNavPoint._ts || pos.timestamp)) / 1000;
+            if (dt > 0.5) $('speedVal').textContent = String(Math.round((distanceMeters(lastNavPoint, here) / dt) * 3.6));
+          }
 
           let heading = Number.isFinite(pos.coords.heading) && pos.coords.heading >= 0
             ? pos.coords.heading
@@ -1068,12 +1101,12 @@ async function startNavigation(target, origin) {
           }
           if (heading !== null) setBlueArrowHeading(heading);
 
-          lastNavPoint = here;
+          lastNavPoint = { lat: here.lat, lon: here.lon, _ts: pos.timestamp || Date.now() };
           if (navMarker) navMarker.setLatLng([here.lat, here.lon]);
           if (followCamera && navMap) navMap.panTo([here.lat, here.lon], { animate: true, duration: 0.35 });
 
           updateRemainingMetrics(here);
-          $('navProgress').textContent = `${tr('routeGps')} · ±${acc} m` + (speedKmh ? ` · ${speedKmh}` : '');
+          $('navProgress').textContent = `${tr('routeGps')} · ±${acc} m`;
 
           if (distanceMeters(here, navTarget) < 35) {
             stepIndex = Math.max(0, currentRouteSteps.length - 1);
@@ -1105,12 +1138,13 @@ async function startNavigation(target, origin) {
   }
 }
 
-$('backFromNav').onclick = () => { stopNavigation(); showScreen('home'); };
 $('endNav').onclick = () => { stopNavigation(); showScreen('home'); toast(language === 'zh' ? '已结束导航' : 'Navigation ended'); };
 $('recenterNav').onclick = () => {
   followCamera = true;
   if (lastNavPoint && navMap) navMap.setView([lastNavPoint.lat, lastNavPoint.lon], 17);
 };
+$('stepsToggleBtn').onclick = () => $('stepsDrawer').classList.toggle('open');
+$('hudStepsBtn').onclick = () => $('stepsDrawer').classList.toggle('open');
 
 document.querySelectorAll('[data-place]').forEach(el => {
   el.onclick = () => { showScreen('home'); $('destInput').value = el.dataset.place; destPoint = null; $('destInput').dispatchEvent(new Event('input')); };
