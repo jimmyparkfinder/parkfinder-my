@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a8e629">
-<title>ParkFinder MY · v3.2 Test</title>
+<title>ParkFinder MY · v3.3 Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--lime:#a8e629;--lime-dark:#4e7e08;--ink:#17251b;--muted:#758174;--line:#e7ece4;--bg:#f5f7f3;--soft:#f0f6e9;--white:#fff;--shadow:0 8px 26px rgba(23,37,27,.055)}
@@ -56,8 +56,19 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .facts{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:#66745f}
 .facts strong{color:#426e11}
 .tag{font-size:10px;font-weight:900;background:#f0f7e3;color:#4e7716;border-radius:8px;padding:7px 8px;white-space:nowrap}
-.cardaction{grid-column:2/4;display:flex;justify-content:flex-end;gap:12px;margin-top:-2px}
+.cardaction{grid-column:2/4;display:flex;justify-content:flex-end;gap:12px;margin-top:-2px;flex-wrap:wrap}
 .textbtn{border:0;background:none;color:#4e7e08;font-size:11px;font-weight:850;padding:3px;cursor:pointer}
+.card-visual{grid-column:1/4;display:none;margin-top:6px;padding-top:10px;border-top:1px dashed #e3eadc}
+.card-visual.open{display:block}
+.visual-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:600px){.visual-grid{grid-template-columns:1.25fr .9fr}}
+.visual-map{height:185px;width:100%;border-radius:12px;overflow:hidden;border:1px solid #dce6d4;background:#eef3ea}
+.visual-street{border:1px solid #dce6d4;border-radius:12px;background:#f9fbf7;padding:10px;display:flex;flex-direction:column;justify-content:space-between;min-height:185px}
+.visual-photo{width:100%;height:112px;object-fit:cover;border-radius:9px;background:#e5ece0;display:block}
+.visual-placeholder{height:112px;border-radius:9px;background:#edf3e8;color:#627359;font-size:11px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;line-height:1.45}
+.visual-meta{font-size:10px;color:#66745f;margin-top:7px;line-height:1.4}
+.visual-links{display:flex;gap:10px;margin-top:8px;font-size:11px;font-weight:800}
+.visual-links a{color:#426e11;text-decoration:none}
 .notice{font-size:10px;color:#899386;line-height:1.55;margin:12px 2px}
 .empty{padding:26px 15px;text-align:center;color:#829078;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:15px;line-height:1.55}
 .screen{display:none}
@@ -115,6 +126,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 .blue-nav-wrap{width:48px;height:48px;display:grid;place-items:center}
 .blue-nav-arrow{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#3d94ff 0%,#1466e6 100%);border:3px solid #ffffff;box-shadow:0 4px 14px rgba(20,102,230,.55);display:grid;place-items:center;color:#ffffff;font-size:21px;font-weight:900;transition:transform .28s ease-out}
 .dest-pin{width:22px;height:22px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ef554d;transform:rotate(-45deg);box-shadow:0 2px 8px #0005}
+.park-pin{width:22px;height:22px;border:2.5px solid white;border-radius:50%;background:#16a34a;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;box-shadow:0 2px 6px #0004}
 </style>
 </head>
 <body>
@@ -167,7 +179,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 
     <div class="resultshead">
       <h3 data-i="near">附近停车区域</h3>
-      <span class="subtle" data-i="closest">按距离由近到远</span>
+      <span class="subtle" data-i="closest">按直线距离排序 · OSM 公开数据</span>
     </div>
 
     <div class="zones">
@@ -181,7 +193,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
       <div class="empty" id="parkingEmptyInit" data-i="parkingInitEmpty">输入并确认目的地后，点击“查找附近停车区域”检索附近停车场。</div>
     </div>
 
-    <p class="notice" data-i="disclaimer">真实停车场资料来自 OpenStreetMap 公开数据，不代表实时空位。已启用前端贴路吸附与航向防抖优化，驾驶时请保持手机屏幕常亮。</p>
+    <p class="notice" data-i="disclaimer">推荐依据：按目的地周边 OpenStreetMap 停车标签按直线距离由近到远排序（Zone A ≤500m，Zone B ≤1000m），无实时空位传感器。已更换为免 Key 免费底图，驾驶时请保持手机屏幕常亮。</p>
   </section>
 
   <section class="screen" id="exploreScreen">
@@ -221,9 +233,9 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
     <div class="panel">
       <h3 data-i="profileTitle">我的</h3>
       <div class="profile-row"><span data-i="language">语言 / Language</span><button class="btn" id="profileLang" type="button">简体中文 / English</button></div>
-      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.2 Test</span></div>
-      <div class="profile-row"><span data-i="mapSource">地点与停车数据源</span><span class="pill">Carto · Photon · Nominatim · Overpass · OSRM</span></div>
-      <p class="notice" data-i="profileNote">已启用前端贴路吸附（Snap-to-Route）、航向角平滑防抖与稳健重算（v3.2）。</p>
+      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.3 Test</span></div>
+      <div class="profile-row"><span data-i="mapSource">免费地图与停车数据源</span><span class="pill">OSM / Esri · Photon · Overpass · OSRM</span></div>
+      <p class="notice" data-i="profileNote">免 Key 免费底图 + 贴路吸附 + 停车点地图/街景预览（v3.3）。</p>
     </div>
   </section>
 
@@ -259,7 +271,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 
     <div class="hud-steps-drawer" id="stepsDrawer">
       <div id="stepsList"></div>
-      <div class="map-attribution" style="margin-top:8px">Tiles © Carto &amp; OpenStreetMap · Place/Parking © OSM · Routing © OSRM</div>
+      <div class="map-attribution" style="margin-top:8px">Tiles © OpenStreetMap / Esri · Place/Parking © OSM · Routing © OSRM</div>
     </div>
 
     <div class="hud-bottom">
@@ -300,20 +312,20 @@ const I = {
     destLabel: '你要去哪里？', destHint: '输入至少 2 个字，系统会显示地点建议。',
     geoIdle: '定位和地址搜索使用设备定位及免费公开地图服务（无 SLA）；精度受设备与环境影响。',
     find: '⌕ 查找附近停车区域', routeToDestination: '↗ 开始导航到目的地',
-    near: '附近停车区域', closest: '按距离由近到远', all: '全部区域',
+    near: '附近停车区域', closest: '按直线距离排序 · OSM 公开数据', all: '全部区域',
     parkingInitEmpty: '输入并确认目的地后，点击“查找附近停车区域”检索附近停车场。',
     parkingNoResult: '附近暂未检索到公开地图停车场记录，可直接点“开始导航到目的地”。',
     parkingServiceFail: '停车场查询接口暂时繁忙或超时，请稍后再试或直接导航到目的地。',
-    occupancyUnknown: '空位情况未知', straightDist: '直线距离', walkEst: '步行估算',
-    directions: '导航', save: '收藏', savedState: '已收藏',
-    disclaimer: '停车场资料来自 OpenStreetMap 公开数据，不代表实时空位。已启用前端贴路吸附与航向防抖优化，驾驶时请保持手机屏幕常亮。',
+    occupancyUnknown: '无实时空位数据', straightDist: '直线距离', walkEst: '步行估算',
+    directions: '导航', visualView: '可视图', hideVisual: '收起视图', save: '收藏', savedState: '已收藏',
+    disclaimer: '推荐依据：按目的地周边 OpenStreetMap 停车标签按直线距离由近到远排序（Zone A ≤500m，Zone B ≤1000m），无实时空位传感器。已更换为免 Key 免费底图，驾驶时请保持手机屏幕常亮。',
     home: '首页', explore: '探索', saved: '收藏', activity: '动态', profile: '我的',
     exploreTitle: '探索附近', exploreText: '输入地点后，使用地址建议确认目的地。',
     startSearch: '开始搜索地点', quickPlaces: '常用地点', savedTitle: '收藏地点',
     noSaved: '你还没有收藏地点。搜索后可以收藏常用停车区域。', activityTitle: '最近动态',
     noActivity: '目前还没有活动记录。', profileTitle: '我的', language: '语言 / Language',
-    version: '应用版本', mapSource: '地点与停车数据源',
-    profileNote: '已启用前端贴路吸附（Snap-to-Route）、航向角平滑防抖与稳健重算（v3.2）。',
+    version: '应用版本', mapSource: '免费地图与停车数据源',
+    profileNote: '免 Key 免费底图 + 贴路吸附 + 停车点地图/街景预览（v3.3）。',
     locating: '正在获取当前地方名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入地点。',
     locDenied: '定位权限已被拒绝，请在浏览器设置中允许定位，或手动输入出发点。',
     locTimeout: '定位请求超时，请检查信号或稍后重试。',
@@ -323,7 +335,6 @@ const I = {
     searchHintFull: '试试加入区域和城市，例如 KL Gateway Residence, Kuala Lumpur。',
     destMissing: '请先输入目的地。', originMissing: '请先输入出发地点或使用定位。',
     savedToast: '已加入收藏', removedToast: '已取消收藏',
-    remainingDistance: '剩余路线距离', estimatedArrival: '估算剩余车程',
     routePreparing: '正在规划路线…', routeError: '暂时无法规划路线。请确认起终点后重试。',
     routeSearching: '正在规划路线…',
     routeReady: '实况 GPS 已启动 · 已开启智能贴路吸附',
@@ -346,20 +357,20 @@ const I = {
     destLabel: 'Where are you going?', destHint: 'Type at least 2 characters to see place suggestions.',
     geoIdle: 'Location and search use device GPS and free public services (no SLA). Accuracy varies by device and surroundings.',
     find: '⌕ Find nearby parking', routeToDestination: '↗ Start navigation to destination',
-    near: 'Nearby parking areas', closest: 'Closest first', all: 'All zones',
+    near: 'Nearby parking areas', closest: 'Sorted by straight distance · OSM', all: 'All zones',
     parkingInitEmpty: 'Enter and confirm a destination, then tap "Find nearby parking" to search nearby parking.',
     parkingNoResult: 'No mapped parking found nearby. You can start navigation to destination directly.',
     parkingServiceFail: 'Parking lookup is busy or timed out. Retry later or navigate to destination directly.',
-    occupancyUnknown: 'Occupancy unknown', straightDist: 'straight-line', walkEst: 'walk est.',
-    directions: 'Navigate', save: 'Save', savedState: 'Saved',
-    disclaimer: 'Parking records come from public map data and do not show live availability. Snap-to-route & heading smoothing enabled; keep screen awake while driving.',
+    occupancyUnknown: 'No live occupancy data', straightDist: 'straight-line', walkEst: 'walk est.',
+    directions: 'Navigate', visualView: 'Map & view', hideVisual: 'Hide view', save: 'Save', savedState: 'Saved',
+    disclaimer: 'Ranking basis: OSM parking tags sorted by straight-line distance from destination (Zone A ≤500m, Zone B ≤1000m); no live bay sensors. Key-free free tiles enabled.',
     home: 'Home', explore: 'Explore', saved: 'Saved', activity: 'Activity', profile: 'Profile',
     exploreTitle: 'Explore nearby', exploreText: 'Confirm destinations using place suggestions.',
     startSearch: 'Search places', quickPlaces: 'Popular places', savedTitle: 'Saved places',
     noSaved: 'No saved places yet.', activityTitle: 'Recent activity',
     noActivity: 'No activity yet.', profileTitle: 'Profile', language: 'Language / Language',
-    version: 'App version', mapSource: 'Place & parking sources',
-    profileNote: 'Snap-to-Route, heading smoothing & resilient rerouting build (v3.2).',
+    version: 'App version', mapSource: 'Free map & parking sources',
+    profileNote: 'Key-free free tiles + snap-to-route + parking map/street preview (v3.3).',
     locating: 'Getting current place name…', locFail: 'Could not get location. Check permission or enter place manually.',
     locDenied: 'Location permission denied. Enable it in browser settings or enter origin manually.',
     locTimeout: 'Location request timed out. Check signal and try again.',
@@ -369,7 +380,6 @@ const I = {
     searchHintFull: 'Add area and city, e.g. KL Gateway Residence, Kuala Lumpur.',
     destMissing: 'Enter a destination first.', originMissing: 'Enter a starting point or use location first.',
     savedToast: 'Added to Saved', removedToast: 'Removed from Saved',
-    remainingDistance: 'Remaining distance', estimatedArrival: 'Est. remaining time',
     routePreparing: 'Planning route…', routeError: 'Could not plan route. Check origin and destination.',
     routeSearching: 'Planning route…',
     routeReady: 'Live GPS active · Snap-to-route enabled',
@@ -394,6 +404,26 @@ try { activities = JSON.parse(localStorage.getItem('pf_activity') || '[]'); } ca
 
 const $ = id => document.getElementById(id);
 const tr = k => (I[language] && I[language][k]) || I.zh[k] || k;
+
+/* Key-free free basemap layer with automatic OSM / Esri fallback */
+function addFreeTileLayer(map, onStatus) {
+  let switchedToEsri = false;
+  const esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+  const osmUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const layer = L.tileLayer(osmUrl, {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  });
+  layer.on('tileerror', () => {
+    if (!switchedToEsri) {
+      switchedToEsri = true;
+      layer.setUrl(esriUrl);
+      if (onStatus) onStatus(language === 'zh' ? '已切换至 Esri 免费街道底图' : 'Switched to Esri street tiles');
+    }
+  });
+  layer.addTo(map);
+  return layer;
+}
 
 function speakInstruction(text) {
   if (!voiceEnabled || !text || !('speechSynthesis' in window)) return;
@@ -794,7 +824,7 @@ async function queryOverpassParking(point, radiusMeters) {
         return {
           id: `${el.type}/${el.id}`, lat, lon,
           name: tags.name || tags['name:en'] || tags['name:zh'] || tags.operator || (language === 'zh' ? '附近停车场' : 'Nearby parking'),
-          fee: tags.fee || '', access: tags.access || '', parking: tags.parking || ''
+          fee: tags.fee || '', access: tags.access || '', parking: tags.parking || '', highway: tags.highway || ''
         };
       }).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lon) && x.access !== 'private' && x.access !== 'no');
       if (list.length) return list;
@@ -807,7 +837,7 @@ async function queryOverpassParking(point, radiusMeters) {
     const fallbackList = (nom || []).map((x, idx) => ({
       id: 'nom-p-' + idx, lat: Number(x.lat), lon: Number(x.lon),
       name: String(x.display_name || (language === 'zh' ? '附近停车区域' : 'Parking area')).split(',')[0],
-      fee: '', access: '', parking: ''
+      fee: '', access: '', parking: '', highway: ''
     })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lon));
     if (fallbackList.length) return fallbackList;
   } catch (_) {}
@@ -817,8 +847,10 @@ async function queryOverpassParking(point, radiusMeters) {
 
 function formatTagSummary(p) {
   const parts = [tr('occupancyUnknown')];
+  if (p.parking) parts.push((language === 'zh' ? '设施: ' : 'Type: ') + p.parking);
+  else if (p.highway) parts.push((language === 'zh' ? '道路标签: ' : 'Road tag: ') + p.highway);
+  else parts.push(language === 'zh' ? 'OSM 停车点' : 'OSM parking');
   if (p.fee) parts.push((language === 'zh' ? '收费: ' : 'Fee: ') + p.fee);
-  if (p.parking) parts.push((language === 'zh' ? '类型: ' : 'Type: ') + p.parking);
   return parts.join(' · ');
 }
 
@@ -827,19 +859,79 @@ function renderParkingState(status) {
   $('parkingCards').innerHTML = `<div class="empty">${escapeHtml(tr(status === 'empty' ? 'parkingNoResult' : (status === 'error' ? 'parkingServiceFail' : 'parkingInitEmpty')))}</div>`;
 }
 
+/* Free Mapillary street-level image lookup (falls back cleanly if unavailable) */
+async function loadMapillaryThumb(lat, lon, boxEl) {
+  if (!boxEl) return;
+  try {
+    const bbox = `${lon - 0.0012},${lat - 0.0012},${lon + 0.0012},${lat + 0.0012}`;
+    const url = `https://graph.mapillary.com/images?fields=id,thumb_256_url,captured_at&bbox=${encodeURIComponent(bbox)}&limit=1&access_token=MLY|414243286490801|82d885e962b7e6d1c6e73f0e06a2e0e1`;
+    const data = await fetchJson(url, 6000);
+    const img = data?.data?.[0];
+    if (img?.thumb_256_url) {
+      boxEl.innerHTML = `<img class="visual-photo" src="${escapeHtml(img.thumb_256_url)}" alt="Street preview" loading="lazy">`;
+      return;
+    }
+  } catch (_) {}
+  boxEl.innerHTML = `<div class="visual-placeholder">${language === 'zh' ? '该点位暂无免费街景照片<br>可点下方链接打开地图/街景' : 'No free street photo nearby<br>Use links below to inspect'}</div>`;
+}
+
+const miniMaps = new Map();
+function toggleCardVisual(card, p, dest) {
+  const vis = card.querySelector('.card-visual');
+  const idx = card.dataset.cardIdx;
+  if (!vis) return;
+  const willOpen = !vis.classList.contains('open');
+  vis.classList.toggle('open', willOpen);
+  const btn = card.querySelector('.visual-toggle-btn');
+  if (btn) btn.textContent = willOpen ? `▾ ${tr('hideVisual')}` : `◈ ${tr('visualView')}`;
+
+  if (!willOpen) return;
+  const mapDiv = vis.querySelector(`#miniMap_${idx}`);
+  const streetBox = vis.querySelector(`#streetBox_${idx}`);
+
+  if (mapDiv && typeof L !== 'undefined') {
+    if (miniMaps.has(idx)) {
+      miniMaps.get(idx).remove();
+      miniMaps.delete(idx);
+    }
+    const m = L.map(mapDiv, { zoomControl: false, attributionControl: false }).setView([p.lat, p.lon], 16);
+    addFreeTileLayer(m);
+    if (dest && Number.isFinite(dest.lat) && Number.isFinite(dest.lon)) {
+      L.marker([dest.lat, dest.lon], {
+        icon: L.divIcon({ className: '', html: '<div class="dest-pin"></div>', iconSize: [22, 22], iconAnchor: [11, 22] })
+      }).addTo(m);
+      L.polyline([[dest.lat, dest.lon], [p.lat, p.lon]], { color: '#16a34a', weight: 3, dashArray: '5,5' }).addTo(m);
+      L.circle([dest.lat, dest.lon], { radius: 500, color: '#4e7e08', weight: 1, fillOpacity: 0.05 }).addTo(m);
+      m.fitBounds([[dest.lat, dest.lon], [p.lat, p.lon]], { padding: [24, 24], maxZoom: 17 });
+    }
+    L.marker([p.lat, p.lon], {
+      icon: L.divIcon({ className: '', html: '<div class="park-pin">P</div>', iconSize: [22, 22], iconAnchor: [11, 11] })
+    }).addTo(m);
+    miniMaps.set(idx, m);
+    setTimeout(() => m.invalidateSize(), 120);
+  }
+  loadMapillaryThumb(p.lat, p.lon, streetBox);
+}
+
 function renderParkingResults(items, destination) {
   lastParkingStatus = 'ok'; lastParkingItems = items; lastParkingDest = destination;
+  miniMaps.forEach(m => m.remove());
+  miniMaps.clear();
   const box = $('parkingCards');
   box.innerHTML = '';
   if (!items.length) { renderParkingState('empty'); return; }
-  items.forEach(p => {
+  items.forEach((p, idx) => {
     const dist = distanceMeters(p, destination);
     const zone = dist <= 500 ? 'A' : (dist <= 1000 ? 'B' : 'C');
     const walkMin = Math.max(1, Math.round(dist / 75));
     const isSaved = savedItems.includes(p.name);
     const distText = dist >= 1000 ? (dist / 1000).toFixed(1) + ' km' : Math.round(dist) + ' m';
+    const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat + ',' + p.lon)}`;
+    const wazeUrl = `https://waze.com/ul?ll=${encodeURIComponent(p.lat + ',' + p.lon)}&navigate=yes`;
     const card = document.createElement('article');
-    card.className = 'parking'; card.dataset.cardZone = zone;
+    card.className = 'parking';
+    card.dataset.cardZone = zone;
+    card.dataset.cardIdx = String(idx);
     card.innerHTML = `
       <div class="parking-icon">P</div>
       <div>
@@ -849,9 +941,26 @@ function renderParkingResults(items, destination) {
       </div>
       <span class="tag">ZONE ${zone}</span>
       <div class="cardaction">
+        <button class="textbtn visual-toggle-btn" type="button">◈ ${escapeHtml(tr('visualView'))}</button>
         <button class="textbtn save-btn" type="button" data-save-name="${escapeHtml(p.name)}">${isSaved ? '♥' : '♡'} <span>${isSaved ? escapeHtml(tr('savedState')) : escapeHtml(tr('save'))}</span></button>
         <button class="textbtn" type="button" data-nav-lat="${p.lat}" data-nav-lon="${p.lon}" data-nav-name="${escapeHtml(p.name)}">↗ ${escapeHtml(tr('directions'))}</button>
+      </div>
+      <div class="card-visual">
+        <div class="visual-grid">
+          <div class="visual-map" id="miniMap_${idx}"></div>
+          <div class="visual-street">
+            <div id="streetBox_${idx}"><div class="visual-placeholder">${language === 'zh' ? '正在查询周边实景…' : 'Loading preview…'}</div></div>
+            <div>
+              <div class="visual-meta">${language === 'zh' ? '绿线：距目的地直线连线 · 圆圈：500m 范围' : 'Green line: direct distance · Circle: 500m'}</div>
+              <div class="visual-links">
+                <a href="${gmapsUrl}" target="_blank" rel="noopener">Google Maps ↗</a>
+                <a href="${wazeUrl}" target="_blank" rel="noopener">Waze ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>`;
+    card.querySelector('.visual-toggle-btn').onclick = () => toggleCardVisual(card, p, destination);
     box.appendChild(card);
   });
   const activeZone = document.querySelector('.zone.active')?.dataset.zone || 'all';
@@ -965,15 +1074,10 @@ function initNavMap(origin, target) {
   if (typeof L === 'undefined') throw new Error('leaflet-missing');
   if (!navMap) {
     navMap = L.map('routeMap', { zoomControl: false }).setView([origin.lat, origin.lon], 17);
-    // Use OSM-aligned Carto Voyager tiles so drawn OSRM roads align closely with rendered streets
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
-      maxZoom: 19,
-      attribution: '© OpenStreetMap · © CARTO'
-    }).addTo(navMap).on('tileerror', () => {
-      $('navProgress').textContent = language === 'zh' ? '地图底图加载失败，请检查网络。' : 'Map tiles failed to load.';
-    });
-  } else navMap.setView([origin.lat, origin.lon], 17);
+    addFreeTileLayer(navMap, msg => { $('navProgress').textContent = msg; });
+  } else {
+    navMap.setView([origin.lat, origin.lon], 17);
+  }
 
   if (navMarker) navMap.removeLayer(navMarker);
   if (navDestMarker) navMap.removeLayer(navDestMarker);
@@ -1042,7 +1146,6 @@ async function drawRoute(origin, target) {
   return route;
 }
 
-/* Project GPS coordinate onto nearest segment of active route */
 function projectOntoRoute(p) {
   const c = activeRoute?.geometry?.coordinates || [];
   if (c.length < 2) return null;
@@ -1117,14 +1220,12 @@ async function startNavigation(target, origin) {
           const acc = Math.round(Number.isFinite(pos.coords.accuracy) ? pos.coords.accuracy : 100);
           const now = pos.timestamp || Date.now();
 
-          // 1. Filter severe GPS jumps when accuracy is very poor (> 75m)
           if (acc > 75 && lastDisplayedPos) {
             $('navProgress').className = 'hud-status-line warn';
             $('navProgress').textContent = `${tr('routeWeakGps')} · ±${acc} m`;
             return;
           }
 
-          // 2. Estimate speed (m/s)
           let speedMs = Number.isFinite(pos.coords.speed) && pos.coords.speed >= 0 ? pos.coords.speed : null;
           if (speedMs === null && lastRawGps && now > lastRawGps._ts) {
             const dt = (now - lastRawGps._ts) / 1000;
@@ -1135,12 +1236,10 @@ async function startNavigation(target, origin) {
             $('speedVal').textContent = String(speedKmh);
           }
 
-          // 3. Snap-to-Route projection
           const proj = projectOntoRoute(raw);
           const canSnap = proj && acc <= 55 && proj.distance <= 38;
           const displayPos = canSnap ? proj.projected : raw;
 
-          // 4. Heading stabilization & deadband lock at low speed (< 1.4 m/s ~ 5 km/h)
           let candidateHeading = null;
           if (Number.isFinite(pos.coords.heading) && pos.coords.heading >= 0 && (speedMs === null || speedMs >= 1.4)) {
             candidateHeading = pos.coords.heading;
@@ -1151,7 +1250,6 @@ async function startNavigation(target, origin) {
           }
 
           if (candidateHeading !== null) {
-            // Blend with road bearing when snapped so arrow stays aligned with road geometry
             const blended = (canSnap && Number.isFinite(proj.segmentBearing))
               ? smoothAngleDeg(candidateHeading, proj.segmentBearing, 0.45)
               : candidateHeading;
@@ -1170,7 +1268,6 @@ async function startNavigation(target, origin) {
           $('navProgress').className = canSnap ? 'hud-status-line snapped' : 'hud-status-line';
           $('navProgress').textContent = `${canSnap ? tr('routeSnapped') : tr('routeFreeGps')} · ±${acc} m`;
 
-          // 5. Arrival & step advancement using snapped position
           if (distanceMeters(displayPos, navTarget) < 35) {
             stepIndex = Math.max(0, currentRouteSteps.length - 1);
             updateManeuver(displayPos);
@@ -1189,7 +1286,6 @@ async function startNavigation(target, origin) {
             updateManeuver(displayPos);
           }
 
-          // 6. Resilient off-route detection (requires good accuracy, > 55m off route, moving > 8 km/h, 3 consecutive hits)
           const isMoving = speedMs === null || speedMs > 2.2;
           if (proj && acc <= 45 && proj.distance > 55 && isMoving) {
             offRouteCount++;
