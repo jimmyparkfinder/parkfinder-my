@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a8e629">
-<title>ParkFinder MY · v2.6.1 Test</title>
+<title>ParkFinder MY · v2.7 Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--lime:#a8e629;--lime-dark:#4e7e08;--ink:#17251b;--muted:#758174;--line:#e7ece4;--bg:#f5f7f3;--soft:#f0f6e9;--white:#fff;--shadow:0 8px 26px rgba(23,37,27,.055)}
@@ -78,25 +78,31 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .maplink{color:#4e7e08;font-weight:800;text-decoration:none}
 .foot{font-size:10px;color:#929b8d;text-align:center;margin:16px 0 0}
 #navigationScreen .panel{padding:14px}
-.navtop{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.navtop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.navtop-left{display:flex;align-items:center;gap:10px}
 .backnav{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;color:var(--ink);font-weight:800;cursor:pointer}
 .navtitle{font-size:17px;font-weight:900}
+.voicebtn{border:1px solid #dce8ce;background:#f4f8ee;color:#426e11;border-radius:12px;padding:8px 11px;font-size:12px;font-weight:800;cursor:pointer}
 .navmeta{display:flex;gap:10px;margin:10px 0}
 .navmetric{flex:1;background:#f4f8ee;border-radius:13px;padding:11px}
 .navmetric strong{display:block;font-size:18px;color:#426e11}
 .navmetric span{display:block;font-size:10px;color:var(--muted);margin-top:2px}
-#routeMap{height:48vh;min-height:300px;border-radius:16px;overflow:hidden;background:#e8eee3}
+#routeMap{height:42vh;min-height:260px;border-radius:16px;overflow:hidden;background:#e8eee3}
 .maneuver{background:#f5f8f1;border:1px solid var(--line);border-radius:14px;padding:13px;margin-top:12px}
 .maneuver small{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}
-.maneuver strong{font-size:14px}
+.maneuver strong{font-size:15px;color:#17251b}
 .nav-progress{font-size:11px;color:#71806a;margin-top:7px;line-height:1.45}
-.gps-dot{width:16px;height:16px;border:3px solid white;border-radius:50%;background:#2785ff;box-shadow:0 1px 7px #0005}
-.dest-pin{width:20px;height:20px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ef554d;transform:rotate(-45deg);box-shadow:0 1px 7px #0005}
-.navactions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-.navactions button{padding:13px;border-radius:12px;border:1px solid var(--line);font-weight:850;background:white;color:var(--ink);cursor:pointer}
+.extnav-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.gmaps-btn{background:var(--lime);color:#20340c;border:0;border-radius:12px;padding:13px;font-weight:900;font-size:13px;cursor:pointer}
+.waze-btn{background:#e7f6fd;color:#0e5a8a;border:1px solid #c6e7f7;border-radius:12px;padding:13px;font-weight:900;font-size:13px;cursor:pointer}
+.navactions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}
+.navactions button{padding:12px;border-radius:12px;border:1px solid var(--line);font-weight:850;background:white;color:var(--ink);cursor:pointer}
 .navactions .endnav{background:#fff2f0;color:#a23b30;border-color:#f2d8d4}
+.steps-box{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;max-height:170px;overflow-y:auto}
+.step-item{font-size:12px;padding:7px 8px;border-radius:10px;display:flex;justify-content:space-between;gap:8px;color:#4f5d49}
+.step-item.active-step{background:#eef8dc;color:#274607;font-weight:800}
 .map-attribution{font-size:9px;color:#8a9384;margin-top:7px;line-height:1.4}
-@media(min-width:650px){.app{padding-top:24px}.hero h2{font-size:28px}.panel{padding:20px}#routeMap{height:55vh}}
+@media(min-width:650px){.app{padding-top:24px}.hero h2{font-size:28px}.panel{padding:20px}#routeMap{height:48vh}}
 </style>
 </head>
 <body>
@@ -144,7 +150,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
       </div>
 
       <button class="primary" id="findBtn" type="button" data-i="find">⌕ 查找附近停车区域</button>
-      <button class="secondary-route" id="routeDestBtn" type="button" data-i="routeToDestination">↗ 在 App 内导航到目的地</button>
+      <button class="secondary-route" id="routeDestBtn" type="button" data-i="routeToDestination">↗ 开始导航到目的地</button>
     </div>
 
     <div class="resultshead">
@@ -203,17 +209,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
     <div class="panel">
       <h3 data-i="profileTitle">我的</h3>
       <div class="profile-row"><span data-i="language">语言 / Language</span><button class="btn" id="profileLang" type="button">简体中文 / English</button></div>
-      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v2.6.1 Test</span></div>
-      <div class="profile-row"><span data-i="mapSource">地点与停车数据源</span><span class="pill">Photon · Nominatim · Overpass</span></div>
-      <p class="notice" data-i="profileNote">零预算测试版本。使用免费公共服务（遵守限流与政策，无 SLA 承诺）。不含实时交通与实时空位数据。</p>
+      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v2.7 Test</span></div>
+      <div class="profile-row"><span data-i="mapSource">地点与停车数据源</span><span class="pill">Photon · Nominatim · Overpass · OSRM</span></div>
+      <p class="notice" data-i="profileNote">零预算测试版本。使用免费公共服务与外部 Google Maps / Waze 跳转导航。</p>
     </div>
   </section>
 
   <section class="screen" id="navigationScreen">
     <div class="panel">
       <div class="navtop">
-        <button class="backnav" id="backFromNav" type="button">← <span data-i="back">返回</span></button>
-        <div class="navtitle" data-i="navigation">应用内导航</div>
+        <div class="navtop-left">
+          <button class="backnav" id="backFromNav" type="button">← <span data-i="back">返回</span></button>
+          <div class="navtitle" data-i="navigation">应用内导航</div>
+        </div>
+        <button class="voicebtn" id="voiceBtn" type="button">🔊 语音：开</button>
       </div>
       <div class="navmeta">
         <div class="navmetric">
@@ -227,15 +236,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
       </div>
       <div id="routeMap" aria-label="Navigation map"></div>
       <div class="maneuver">
-        <small data-i="nextInstruction">下一步指示</small>
+        <small data-i="nextInstruction">当前转向指示</small>
         <strong id="nextManeuver" data-i="routePreparing">正在规划路线…</strong>
         <div class="nav-progress" id="navProgress">等待开始导航</div>
+      </div>
+      <div class="extnav-grid">
+        <button class="gmaps-btn" id="openGoogleMapsBtn" type="button">▶ Google Maps 真实导航</button>
+        <button class="waze-btn" id="openWazeBtn" type="button">▶ Waze 真实导航</button>
       </div>
       <div class="navactions">
         <button id="recenterNav" type="button" data-i="recenter">⌖ 重新定位</button>
         <button class="endnav" id="endNav" type="button" data-i="endNavigation">结束导航</button>
       </div>
-      <div class="map-attribution">Tiles © Esri &amp; contributors · Place/Parking © OpenStreetMap contributors · Routing © OSRM</div>
+      <div class="steps-box" id="stepsList"></div>
+      <div class="map-attribution">Tiles © Esri · Place/Parking © OpenStreetMap · Routing © OSRM · Turn-by-Turn via Google Maps / Waze</div>
     </div>
   </section>
 
@@ -255,48 +269,48 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 <script>
 window.addEventListener('error', function(ev) {
   var g = document.getElementById('geoStatus');
-  if (g && ev && ev.message) g.textContent = '脚本提示：' + ev.message;
+  if (g && ev && ev.message) g.textContent = '提示：' + ev.message;
 });
 
 const I = {
   zh: {
     tagline: '马来西亚智能停车助手', hero: '找车位，轻松一点。', heroSub: '提前搜索目的地附近的停车区域，减少绕路。',
     trip: '① 设置行程', originLabel: '出发点 / 当前定位', loc: '⌖ 重新定位',
-    originHint: '可以输入公寓、商场、街道或完整地址；选择下拉建议以确认位置。',
+    originHint: '定位后会显示当前地方名称；也可手动输入地点并点选下拉建议。',
     destLabel: '你要去哪里？', destHint: '输入至少 2 个字，系统会显示地点建议。',
     geoIdle: '定位和地址搜索使用设备定位及免费公开地图服务（无 SLA）；精度受设备与环境影响。',
-    find: '⌕ 查找附近停车区域', routeToDestination: '↗ 在 App 内导航到目的地',
+    find: '⌕ 查找附近停车区域', routeToDestination: '↗ 开始导航到目的地',
     near: '附近停车区域', closest: '按距离由近到远', all: '全部区域',
-    parkingInitEmpty: '输入并确认目的地后，点击“查找附近停车区域”检索地图记录的停车场。',
-    parkingNoResult: '附近暂未检索到 OpenStreetMap 停车场记录（空位情况未知）。请尝试扩大范围或稍后重试。',
-    parkingServiceFail: '停车场查询服务暂时不可用或超时，请稍后重试。',
+    parkingInitEmpty: '输入并确认目的地后，点击“查找附近停车区域”检索附近停车场。',
+    parkingNoResult: '附近暂未检索到公开地图停车场记录，建议直接点“开始导航到目的地”或打开 Google Maps / Waze 查找周边车场。',
+    parkingServiceFail: '停车场查询接口暂时繁忙或超时，请稍后再试或直接导航到目的地。',
     occupancyUnknown: '空位情况未知', straightDist: '直线距离', walkEst: '步行估算',
-    directions: '路线', save: '收藏', savedState: '已收藏',
-    disclaimer: '真实停车场资料来自 OpenStreetMap 公开数据，不代表实时空位（空位情况未知），亦不保证公众准入。距离为直线距离，步行时间为估算值；请以现场路牌与当地规定为准。',
+    directions: '导航', save: '收藏', savedState: '已收藏',
+    disclaimer: '停车场资料来自 OpenStreetMap 公开数据，不代表实时空位。真实 Turn-by-Turn 实时路况导航可点击“Google Maps 真实导航”或“Waze 真实导航”。',
     home: '首页', explore: '探索', saved: '收藏', activity: '动态', profile: '我的',
-    exploreTitle: '探索附近', exploreText: '输入地点后，使用地址建议确认目的地；正式停车资料仍需逐区核实。',
+    exploreTitle: '探索附近', exploreText: '输入地点后，使用地址建议确认目的地。',
     startSearch: '开始搜索地点', quickPlaces: '常用地点', savedTitle: '收藏地点',
     noSaved: '你还没有收藏地点。搜索后可以收藏常用停车区域。', activityTitle: '最近动态',
     noActivity: '目前还没有活动记录。', profileTitle: '我的', language: '语言 / Language',
     version: '应用版本', mapSource: '地点与停车数据源',
-    profileNote: '零预算测试版本。使用免费公共服务（遵守限流与政策，无 SLA 承诺）。不含实时交通与实时空位数据。',
-    locating: '正在获取设备定位…', locFail: '无法取得定位。请检查浏览器定位权限，或直接输入地点名称。',
+    profileNote: '零预算测试版本。结合免费公开地图预览与 Google Maps / Waze 真实驾驶导航。',
+    locating: '正在获取当前地方名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入地点。',
     locDenied: '定位权限已被拒绝，请在浏览器设置中允许定位，或手动输入出发点。',
-    locTimeout: '定位请求超时，请检查信号或稍后重试。', locDone: '已获取设备定位坐标',
-    locApprox: '设备回报精度约 ±', meters: ' 米', searching: '正在搜索地点…',
+    locTimeout: '定位请求超时，请检查信号或稍后重试。',
+    locApprox: '当前位置精度约 ±', meters: ' 米', searching: '正在搜索地点…',
     noResults: '暂时找不到匹配地点。请补充道路、区域或城市名称后重试。',
     searchTimeout: '地点搜索请求超时，请稍后重试。', searchError: '地点搜索服务暂时不可用，请稍后重试。',
     searchHintFull: '试试加入区域和城市，例如 KL Gateway Residence, Kuala Lumpur。',
     destMissing: '请先输入目的地。', originMissing: '请先输入出发地点或使用定位。',
     savedToast: '已加入收藏', removedToast: '已取消收藏', back: '返回',
-    navigation: '应用内导航', remainingDistance: '道路路线距离',
-    estimatedArrival: '路线估算车程（无实时交通）', nextInstruction: '下一步指示',
+    navigation: '路线与转向引导', remainingDistance: '道路路线距离',
+    estimatedArrival: '路线估算车程（无实时交通）', nextInstruction: '当前转向指示',
     routePreparing: '正在规划路线…', recenter: '⌖ 重新定位', endNavigation: '结束导航',
     routeError: '暂时无法规划路线。请确认起终点后重试。', routeSearching: '正在规划路线…',
-    routeReady: '路线已准备好（估算车程不含实时交通），允许定位后即可跟随。',
+    routeReady: '路线已生成。如需实时路况与持续语音带路，请点下方 Google Maps / Waze 真实导航。',
     routeOffRoute: '检测到偏离路线，正在重新规划…', routeGps: 'GPS 定位已更新',
     routeTo: '前往：', routeStart: '出发', routeArrive: '已接近目的地',
-    routeStraight: '继续直行', routeLeft: '左转', routeRight: '右转',
+    routeStraight: '继续直行', routeLeft: '向左转', routeRight: '向右转',
     routeRoundabout: '进入环岛', routeContinue: '继续沿道路行驶',
     navPermission: '请允许定位权限，以便在导航时更新当前位置。', noGeo: '当前浏览器不支持定位。',
     langName: '🌐 English'
@@ -305,48 +319,48 @@ const I = {
     tagline: 'Malaysia Smart Parking Assistant', hero: 'Find parking, stress less.',
     heroSub: 'Search parking areas near your destination before you arrive.',
     trip: '① Plan your trip', originLabel: 'Starting point / Current location', loc: '⌖ Locate me',
-    originHint: 'Enter an apartment, mall, street or full address; select a suggestion to confirm it.',
+    originHint: 'Shows your current place name after locating; or type a place and pick a suggestion.',
     destLabel: 'Where are you going?', destHint: 'Type at least 2 characters to see place suggestions.',
     geoIdle: 'Location and search use device GPS and free public services (no SLA). Accuracy varies by device and surroundings.',
-    find: '⌕ Find nearby parking', routeToDestination: '↗ Navigate to destination in app',
+    find: '⌕ Find nearby parking', routeToDestination: '↗ Start navigation to destination',
     near: 'Nearby parking areas', closest: 'Closest first', all: 'All zones',
-    parkingInitEmpty: 'Enter and confirm a destination, then tap "Find nearby parking" to query mapped parking facilities.',
-    parkingNoResult: 'No mapped OpenStreetMap parking facilities found nearby (occupancy unknown). Try expanding or retrying later.',
-    parkingServiceFail: 'Parking lookup service is temporarily unavailable or timed out. Please try again shortly.',
+    parkingInitEmpty: 'Enter and confirm a destination, then tap "Find nearby parking" to search nearby parking.',
+    parkingNoResult: 'No mapped parking found nearby. You can start navigation to destination or open Google Maps / Waze.',
+    parkingServiceFail: 'Parking lookup is busy or timed out. Retry later or navigate to destination directly.',
     occupancyUnknown: 'Occupancy unknown', straightDist: 'straight-line', walkEst: 'walk est.',
-    directions: 'Directions', save: 'Save', savedState: 'Saved',
-    disclaimer: 'Parking records come from OpenStreetMap public data; they do not show live availability (occupancy unknown) or guarantee public access. Distances are straight-line and walk times are estimates.',
+    directions: 'Navigate', save: 'Save', savedState: 'Saved',
+    disclaimer: 'Parking records come from public map data and do not show live availability. Use Google Maps / Waze buttons for full live turn-by-turn driving navigation.',
     home: 'Home', explore: 'Explore', saved: 'Saved', activity: 'Activity', profile: 'Profile',
-    exploreTitle: 'Explore nearby', exploreText: 'Confirm destinations using place suggestions. Real parking data still requires local verification.',
+    exploreTitle: 'Explore nearby', exploreText: 'Confirm destinations using place suggestions.',
     startSearch: 'Search places', quickPlaces: 'Popular places', savedTitle: 'Saved places',
-    noSaved: 'No saved places yet. Save parking areas from search results.', activityTitle: 'Recent activity',
+    noSaved: 'No saved places yet.', activityTitle: 'Recent activity',
     noActivity: 'No activity yet.', profileTitle: 'Profile', language: 'Language / Language',
     version: 'App version', mapSource: 'Place & parking sources',
-    profileNote: 'Zero-budget test build using free public services (rate-limited, no SLA). No live traffic or real-time parking occupancy.',
-    locating: 'Getting device location…', locFail: 'Could not get location. Check browser permission or enter a place manually.',
-    locDenied: 'Location permission denied. Enable it in browser settings or enter an origin manually.',
-    locTimeout: 'Location request timed out. Check signal and try again.', locDone: 'Device GPS coordinates acquired',
-    locApprox: 'Reported accuracy: about ±', meters: ' m', searching: 'Searching places…',
-    noResults: 'No matching place found. Add a street, area or city and try again.',
-    searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search service is temporarily unavailable. Please retry.',
+    profileNote: 'Zero-budget test build with public map route preview + Google Maps / Waze turn-by-turn launch.',
+    locating: 'Getting current place name…', locFail: 'Could not get location. Check permission or enter place manually.',
+    locDenied: 'Location permission denied. Enable it in browser settings or enter origin manually.',
+    locTimeout: 'Location request timed out. Check signal and try again.',
+    locApprox: 'Location accuracy ~±', meters: ' m', searching: 'Searching places…',
+    noResults: 'No matching place found. Add street, area or city and try again.',
+    searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search service is temporarily unavailable.',
     searchHintFull: 'Add area and city, e.g. KL Gateway Residence, Kuala Lumpur.',
     destMissing: 'Enter a destination first.', originMissing: 'Enter a starting point or use location first.',
     savedToast: 'Added to Saved', removedToast: 'Removed from Saved', back: 'Back',
-    navigation: 'In-app navigation', remainingDistance: 'Road route distance',
-    estimatedArrival: 'Route est. drive (no live traffic)', nextInstruction: 'Next instruction',
+    navigation: 'Route & Turn Guide', remainingDistance: 'Road route distance',
+    estimatedArrival: 'Route est. drive (no live traffic)', nextInstruction: 'Current turn instruction',
     routePreparing: 'Planning route…', recenter: '⌖ Recenter', endNavigation: 'End navigation',
-    routeError: 'Could not plan this route. Confirm origin and destination and retry.', routeSearching: 'Planning route…',
-    routeReady: 'Route ready (estimate excludes live traffic). Allow location to track.',
+    routeError: 'Could not plan route. Check origin and destination.', routeSearching: 'Planning route…',
+    routeReady: 'Route ready. Tap Google Maps or Waze below for full live turn-by-turn navigation.',
     routeOffRoute: 'Off route detected. Recalculating…', routeGps: 'GPS location updated',
     routeTo: 'To: ', routeStart: 'Start', routeArrive: 'Near destination',
-    routeStraight: 'Continue straight', routeLeft: 'Turn left', routeRight: 'Turn right',
+    routeStraight: 'Go straight', routeLeft: 'Turn left', routeRight: 'Turn right',
     routeRoundabout: 'Enter roundabout', routeContinue: 'Continue along road',
     navPermission: 'Allow location access to update your position during navigation.', noGeo: 'Geolocation is not supported by this browser.',
     langName: '🌐 简体中文'
   }
 };
 
-let language = 'zh', originPoint = null, destPoint = null;
+let language = 'zh', originPoint = null, destPoint = null, voiceEnabled = true;
 let lastParkingItems = [], lastParkingDest = null, lastParkingStatus = 'init';
 let savedItems = [], activities = [];
 try { savedItems = JSON.parse(localStorage.getItem('pf_saved') || '[]'); } catch (_) {}
@@ -354,6 +368,16 @@ try { activities = JSON.parse(localStorage.getItem('pf_activity') || '[]'); } ca
 
 const $ = id => document.getElementById(id);
 const tr = k => (I[language] && I[language][k]) || I.zh[k] || k;
+
+function speakInstruction(text) {
+  if (!voiceEnabled || !text || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = language === 'zh' ? 'zh-CN' : 'en-US';
+    window.speechSynthesis.speak(u);
+  } catch (_) {}
+}
 
 function toast(s) {
   const t = $('toast');
@@ -379,6 +403,9 @@ function setLanguage(l) {
   });
   $('langBtn').textContent = tr('langName');
   $('profileLang').textContent = l === 'zh' ? '简体中文 / English' : 'English / 简体中文';
+  $('voiceBtn').textContent = language === 'zh'
+    ? (voiceEnabled ? '🔊 语音：开' : '🔇 语音：关')
+    : (voiceEnabled ? '🔊 Voice: On' : '🔇 Voice: Off');
   renderSaved();
   renderActivity();
   if (lastParkingStatus === 'ok' && lastParkingDest) renderParkingResults(lastParkingItems, lastParkingDest);
@@ -387,6 +414,13 @@ function setLanguage(l) {
 
 $('langBtn').onclick = () => setLanguage(language === 'zh' ? 'en' : 'zh');
 $('profileLang').onclick = () => setLanguage(language === 'zh' ? 'en' : 'zh');
+$('voiceBtn').onclick = () => {
+  voiceEnabled = !voiceEnabled;
+  $('voiceBtn').textContent = language === 'zh'
+    ? (voiceEnabled ? '🔊 语音：开' : '🔇 语音：关')
+    : (voiceEnabled ? '🔊 Voice: On' : '🔇 Voice: Off');
+  if (voiceEnabled) speakInstruction($('nextManeuver').textContent);
+};
 
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -414,7 +448,7 @@ function setCache(key, items) {
   if (placeCache.size > 80) placeCache.delete(placeCache.keys().next().value);
 }
 
-async function fetchJson(url, ms = 8000, externalSignal = null) {
+async function fetchJson(url, ms = 9000, externalSignal = null) {
   const controller = new AbortController();
   let timedOut = false;
   const timer = setTimeout(() => { timedOut = true; controller.abort(); }, ms);
@@ -449,7 +483,7 @@ function normalizePhoton(f) {
 function normalizeNominatim(x) {
   const a = x.address || {};
   return {
-    label: a.amenity || a.shop || a.mall || a.building || x.name || a.road || String(x.display_name || 'Place').split(',')[0],
+    label: a.amenity || a.shop || a.mall || a.building || a.suburb || a.neighbourhood || a.road || x.name || String(x.display_name || 'Place').split(',')[0],
     detail: x.display_name || '', lat: Number(x.lat), lon: Number(x.lon), source: 'Nominatim'
   };
 }
@@ -466,7 +500,7 @@ function dedupeAndRank(items, needle) {
     .sort((a, b) => {
       const score = x => {
         const t = (x.label + ' ' + x.detail).toLowerCase();
-        return (t.includes(q) ? -3 : 0) + ((t.includes('kuala lumpur') || t.includes('吉隆坡') || t.includes('selangor')) ? -1 : 0);
+        return (t.includes(q) ? -3 : 0) + ((t.includes('kuala lumpur') || t.includes('吉隆坡') || t.includes('selangor') || t.includes('petaling jaya')) ? -1 : 0);
       };
       return score(a) - score(b);
     }).slice(0, 8);
@@ -474,12 +508,12 @@ function dedupeAndRank(items, needle) {
 
 async function photonQuery(term, lang, signal) {
   const u = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(term) + '&limit=8&lang=' + lang + '&lat=3.139&lon=101.686';
-  const d = await fetchJson(u, 7500, signal);
+  const d = await fetchJson(u, 8000, signal);
   return (d.features || []).filter(f => !f.properties?.countrycode || String(f.properties.countrycode).toLowerCase() === 'my').map(normalizePhoton);
 }
 
 async function nominatimQuery(q, signal) {
-  const wait = Math.max(0, 1100 - (Date.now() - nominatimLastCall));
+  const wait = Math.max(0, 1000 - (Date.now() - nominatimLastCall));
   if (wait) {
     await new Promise((resolve, reject) => {
       const t = setTimeout(resolve, wait);
@@ -489,7 +523,7 @@ async function nominatimQuery(q, signal) {
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
   nominatimLastCall = Date.now();
   const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&countrycodes=my&q=' + encodeURIComponent(q);
-  const d = await fetchJson(u, 8500, signal);
+  const d = await fetchJson(u, 9000, signal);
   return (d || []).map(normalizeNominatim);
 }
 
@@ -575,7 +609,7 @@ function renderPlaceSuggestions(items, box, kind) {
     const el = document.createElement('div');
     el.className = 'suggestion';
     el.dataset.index = i;
-    el.innerHTML = `<strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.detail || 'Malaysia')} · ${escapeHtml(item.source || 'Search')} (${item.lat.toFixed(4)}, ${item.lon.toFixed(4)})</small>`;
+    el.innerHTML = `<strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.detail || 'Malaysia')} · ${escapeHtml(item.source || 'Search')}</small>`;
     el.onclick = () => selectResolvedPlace(item, kind, box);
     box.appendChild(el);
   });
@@ -584,15 +618,15 @@ function renderPlaceSuggestions(items, box, kind) {
 
 function selectResolvedPlace(item, kind, box) {
   const point = { label: item.label, detail: item.detail, lat: Number(item.lat), lon: Number(item.lon), isGps: false };
-  const display = [item.label, item.detail].filter(Boolean).join(', ');
+  const display = item.label;
   if (kind === 'origin') {
     originPoint = point;
     $('originInput').value = display;
-    $('originHint').textContent = language === 'zh' ? '已确认出发位置' : 'Starting point confirmed';
+    $('originHint').textContent = item.detail || (language === 'zh' ? '已确认出发位置' : 'Starting point confirmed');
   } else {
     destPoint = point;
     $('destInput').value = display;
-    $('destHint').textContent = language === 'zh' ? '已确认目的地' : 'Destination confirmed';
+    $('destHint').textContent = item.detail || (language === 'zh' ? '已确认目的地' : 'Destination confirmed');
   }
   box.classList.remove('show');
 }
@@ -608,7 +642,7 @@ function setupAutocomplete(inputId, boxId, kind) {
     if (q.length < 2) { box.classList.remove('show'); box.innerHTML = ''; return; }
     box.innerHTML = `<div class="suggestion">${tr('searching')}</div>`;
     box.classList.add('show');
-    timers[kind] = setTimeout(() => searchPlaces(q, box, kind), 500);
+    timers[kind] = setTimeout(() => searchPlaces(q, box, kind), 450);
   });
   input.addEventListener('keydown', e => {
     if (e.key === 'Escape') box.classList.remove('show');
@@ -632,6 +666,38 @@ document.addEventListener('click', e => {
 setupAutocomplete('originInput', 'originSuggest', 'origin');
 setupAutocomplete('destInput', 'destSuggest', 'dest');
 
+// Reverse geocode strictly to place name (never showing raw numbers in input)
+async function reversePlaceName(lat, lon) {
+  try {
+    const d = await fetchJson(
+      `https://photon.komoot.io/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&lang=${language === 'zh' ? 'zh' : 'en'}`,
+      6500
+    );
+    if (d.features?.[0]) {
+      const p = normalizePhoton(d.features[0]);
+      if (p.label && p.label !== 'Place') {
+        return { name: p.label, sub: p.detail || '' };
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const wait = Math.max(0, 1000 - (Date.now() - nominatimLastCall));
+    if (wait) await new Promise(r => setTimeout(r, wait));
+    nominatimLastCall = Date.now();
+    const r = await fetchJson(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=${language === 'zh' ? 'zh-CN,en' : 'en'}`,
+      7500
+    );
+    const a = r.address || {};
+    const name = a.amenity || a.building || a.mall || a.shop || a.suburb || a.neighbourhood || a.road || r.name || (language === 'zh' ? '当前所在位置' : 'Current location');
+    const sub = [a.suburb, a.city || a.county, a.state].filter(Boolean).filter((x, i, arr) => arr.indexOf(x) === i).join(', ');
+    return { name, sub };
+  } catch (_) {}
+
+  return { name: language === 'zh' ? '当前所在位置' : 'Current location', sub: '' };
+}
+
 $('locBtn').onclick = () => {
   if (!navigator.geolocation) { $('geoStatus').textContent = tr('noGeo'); return; }
   const btn = $('locBtn');
@@ -640,21 +706,12 @@ $('locBtn').onclick = () => {
   navigator.geolocation.getCurrentPosition(
     async pos => {
       const { latitude: lat, longitude: lon, accuracy } = pos.coords;
-      const accRounded = Math.round(Number.isFinite(accuracy) ? accuracy : 9999);
-      const coordText = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
-      originPoint = { lat, lon, label: 'GPS', detail: coordText, accuracy: accRounded, isGps: true };
-      $('originInput').value = coordText;
-      let nearbyLabel = '';
-      try {
-        const d = await fetchJson(`https://photon.komoot.io/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&lang=${language === 'zh' ? 'zh' : 'en'}`, 6500);
-        if (d.features?.[0]) { const p = normalizePhoton(d.features[0]); nearbyLabel = [p.label, p.detail].filter(Boolean).join(', '); }
-      } catch (_) {}
-      $('originInput').value = nearbyLabel ? `${nearbyLabel} (${coordText})` : coordText;
-      $('originHint').textContent = nearbyLabel
-        ? (language === 'zh' ? `附近参考：${nearbyLabel} · 导航起点仍使用精确 GPS 坐标` : `Nearby ref: ${nearbyLabel} · Navigation uses exact GPS coordinates`)
-        : (language === 'zh' ? '未取得附近地名标签，已保留精确 GPS 坐标作为导航起点' : 'No nearby label found; exact GPS coordinates kept as origin');
-      const warnLowAcc = accRounded > 100 ? (language === 'zh' ? ' · 定位精度较低，建议在开阔处重新定位' : ' · Low accuracy; retry outdoors if needed') : '';
-      $('geoStatus').textContent = `${tr('locApprox')}${accRounded}${tr('meters')}${warnLowAcc}`;
+      const accRounded = Math.round(Number.isFinite(accuracy) ? accuracy : 100);
+      const place = await reversePlaceName(lat, lon);
+      originPoint = { lat, lon, label: place.name, detail: place.sub, accuracy: accRounded, isGps: true };
+      $('originInput').value = place.name;
+      $('originHint').textContent = place.sub || (language === 'zh' ? '已定位到当前地方名称' : 'Current place name acquired');
+      $('geoStatus').textContent = `${tr('locApprox')}${accRounded}${tr('meters')}`;
       btn.disabled = false;
     },
     err => {
@@ -687,29 +744,44 @@ function distanceMeters(a, b) {
 }
 
 async function queryOverpassParking(point, radiusMeters) {
-  const query = `[out:json][timeout:18];(node(around:${radiusMeters},${point.lat},${point.lon})[amenity=parking];way(around:${radiusMeters},${point.lat},${point.lon})[amenity=parking];relation(around:${radiusMeters},${point.lat},${point.lon})[amenity=parking];);out center tags;`;
+  const query = `[out:json][timeout:12];(node(around:${radiusMeters},${point.lat},${point.lon})[amenity=parking];way(around:${radiusMeters},${point.lat},${point.lon})[amenity=parking];);out center tags;`;
   const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
   let lastErr = null;
   for (const ep of endpoints) {
     try {
-      const data = await fetchJson(ep + '?data=' + encodeURIComponent(query), 20000);
-      return (data.elements || []).map(el => {
+      const data = await fetchJson(ep + '?data=' + encodeURIComponent(query), 11000);
+      const list = (data.elements || []).map(el => {
         const lat = Number(el.lat ?? el.center?.lat), lon = Number(el.lon ?? el.center?.lon), tags = el.tags || {};
         return {
           id: `${el.type}/${el.id}`, lat, lon,
-          name: tags.name || tags['name:en'] || tags['name:zh'] || tags.operator || (language === 'zh' ? '未命名停车场' : 'Unnamed parking'),
+          name: tags.name || tags['name:en'] || tags['name:zh'] || tags.operator || (language === 'zh' ? '附近停车场' : 'Nearby parking'),
           fee: tags.fee || '', access: tags.access || '', parking: tags.parking || ''
         };
       }).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lon) && x.access !== 'private' && x.access !== 'no');
+      if (list.length) return list;
     } catch (e) { lastErr = e; }
   }
-  throw lastErr || new Error('overpass-failed');
+
+  // Fallback search via Nominatim for parking near destination
+  try {
+    const qName = encodeURIComponent('parking near ' + (point.label || 'Kuala Lumpur'));
+    const nom = await fetchJson(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=my&q=${qName}`, 9000);
+    const fallbackList = (nom || []).map((x, idx) => ({
+      id: 'nom-p-' + idx,
+      lat: Number(x.lat),
+      lon: Number(x.lon),
+      name: String(x.display_name || (language === 'zh' ? '附近停车区域' : 'Parking area')).split(',')[0],
+      fee: '', access: '', parking: ''
+    })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lon));
+    if (fallbackList.length) return fallbackList;
+  } catch (_) {}
+
+  throw lastErr || new Error('no-parking');
 }
 
 function formatTagSummary(p) {
   const parts = [tr('occupancyUnknown')];
   if (p.fee) parts.push((language === 'zh' ? '收费: ' : 'Fee: ') + p.fee);
-  if (p.access) parts.push((language === 'zh' ? '准入: ' : 'Access: ') + p.access);
   if (p.parking) parts.push((language === 'zh' ? '类型: ' : 'Type: ') + p.parking);
   return parts.join(' · ');
 }
@@ -755,14 +827,19 @@ $('findBtn').onclick = async () => {
   btn.textContent = language === 'zh' ? '正在查询附近停车场…' : 'Searching nearby parking…';
   try {
     const dest = await resolveInputPoint('dest');
-    let rawList = [], ok = false;
-    try { rawList = await queryOverpassParking(dest, 1200); ok = true; } catch (_) {}
-    if (rawList.length < 3) { try { rawList = rawList.concat(await queryOverpassParking(dest, 2500)); ok = true; } catch (_) {} }
-    if (!ok) { renderParkingState('error'); toast(tr('parkingServiceFail')); return; }
+    let rawList = [];
+    try { rawList = await queryOverpassParking(dest, 1500); }
+    catch (_) {
+      try { rawList = await queryOverpassParking(dest, 3000); } catch (_) {}
+    }
+
     const deduped = new Map();
     rawList.forEach(item => { const k = item.id || `${item.lat.toFixed(5)},${item.lon.toFixed(5)}`; if (!deduped.has(k)) deduped.set(k, item); });
     const sorted = [...deduped.values()].map(p => ({ ...p, _dist: distanceMeters(p, dest) })).sort((a, b) => a._dist - b._dist).slice(0, 5);
-    if (!sorted.length) renderParkingState('empty'); else renderParkingResults(sorted, dest);
+
+    if (!sorted.length) renderParkingState('empty');
+    else renderParkingResults(sorted, dest);
+
     activities.unshift({ from: originPoint?.label || $('originInput').value.trim() || 'GPS', to: dest.label || $('destInput').value.trim(), time: new Date().toLocaleString() });
     activities = activities.slice(0, 20);
     try { localStorage.setItem('pf_activity', JSON.stringify(activities)); } catch (_) {}
@@ -807,7 +884,7 @@ $('routeDestBtn').onclick = async () => {
 };
 
 let navMap = null, navMarker = null, navDestMarker = null, routeLine = null;
-let watchId = null, currentRouteSteps = [], stepIndex = 0;
+let watchId = null, currentRouteSteps = [], stepIndex = 0, lastSpokenIndex = -1;
 let lastNavPoint = null, navTarget = null, activeRoute = null, lastReroute = 0, offRouteCount = 0;
 
 function maneuverText(step) {
@@ -821,6 +898,17 @@ function maneuverText(step) {
   return tr('routeStraight');
 }
 
+function renderStepsList() {
+  const box = $('stepsList');
+  if (!box) return;
+  if (!currentRouteSteps.length) { box.innerHTML = ''; return; }
+  box.innerHTML = currentRouteSteps.map((s, idx) => {
+    const label = maneuverText(s) + (s.name ? ' · ' + s.name : '');
+    const dText = s.distance >= 1000 ? (s.distance / 1000).toFixed(1) + ' km' : Math.round(s.distance) + ' m';
+    return `<div class="step-item ${idx === stepIndex ? 'active-step' : ''}"><span>${idx + 1}. ${escapeHtml(label)}</span><span>${escapeHtml(dText)}</span></div>`;
+  }).join('');
+}
+
 function makeDivIcon(className) { return L.divIcon({ className: '', html: `<div class="${className}"></div>`, iconSize: [22, 22], iconAnchor: [11, 11] }); }
 
 function initNavMap(origin, target) {
@@ -828,31 +916,37 @@ function initNavMap(origin, target) {
   if (!navMap) {
     navMap = L.map('routeMap', { zoomControl: true }).setView([origin.lat, origin.lon], 15);
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles © Esri' })
-      .addTo(navMap).on('tileerror', () => { $('navProgress').textContent = language === 'zh' ? '地图底图加载失败，请检查网络连接后重试。' : 'Map tiles failed to load.'; });
+      .addTo(navMap).on('tileerror', () => { $('navProgress').textContent = language === 'zh' ? '地图底图加载失败，请检查网络。' : 'Map tiles failed to load.'; });
   } else navMap.setView([origin.lat, origin.lon], 15);
   if (navMarker) navMap.removeLayer(navMarker);
   if (navDestMarker) navMap.removeLayer(navDestMarker);
-  navMarker = L.marker([origin.lat, origin.lon], { icon: makeDivIcon('gps-dot') }).addTo(navMap).bindPopup(language === 'zh' ? '当前出发/定位点' : 'Current position');
+  navMarker = L.marker([origin.lat, origin.lon], { icon: makeDivIcon('gps-dot') }).addTo(navMap).bindPopup(origin.label || (language === 'zh' ? '当前位置' : 'Current'));
   navDestMarker = L.marker([target.lat, target.lon], { icon: makeDivIcon('dest-pin') }).addTo(navMap).bindPopup(escapeHtml(target.label || (language === 'zh' ? '目的地' : 'Destination')));
   setTimeout(() => navMap.invalidateSize(), 180);
 }
 
-function updateManeuver() {
+function updateManeuver(forceSpeak = false) {
   const step = currentRouteSteps[stepIndex];
-  $('nextManeuver').textContent = step ? (maneuverText(step) + (step.name ? ' · ' + step.name : '')) : tr('routeArrive');
+  const text = step ? (maneuverText(step) + (step.name ? ' · ' + step.name : '')) : tr('routeArrive');
+  $('nextManeuver').textContent = text;
+  renderStepsList();
+  if (forceSpeak || lastSpokenIndex !== stepIndex) {
+    lastSpokenIndex = stepIndex;
+    speakInstruction(text);
+  }
 }
 
 async function drawRoute(origin, target) {
   const url = `https://router.project-osrm.org/route/v1/driving/${origin.lon},${origin.lat};${target.lon},${target.lat}?overview=full&geometries=geojson&steps=true`;
-  const data = await fetchJson(url, 18000);
+  const data = await fetchJson(url, 15000);
   if (data.code !== 'Ok' || !data.routes?.length) throw new Error('no-route');
   const route = data.routes[0];
   if (routeLine) navMap.removeLayer(routeLine);
   routeLine = L.geoJSON(route.geometry, { style: { color: '#78b82a', weight: 7, opacity: 0.92 } }).addTo(navMap);
   navMap.fitBounds(routeLine.getBounds(), { padding: [35, 35] });
   currentRouteSteps = route.legs?.[0]?.steps || [];
-  stepIndex = 0; activeRoute = route;
-  updateManeuver();
+  stepIndex = 0; lastSpokenIndex = -1; activeRoute = route;
+  updateManeuver(true);
   $('routeDistance').textContent = route.distance >= 1000 ? (route.distance / 1000).toFixed(1) + ' km' : Math.round(route.distance) + ' m';
   $('routeEta').textContent = Math.max(1, Math.round(route.duration / 60)) + ' min';
   $('navProgress').textContent = tr('routeReady');
@@ -909,8 +1003,22 @@ async function rerouteFrom(here) {
 
 function stopNavigation() {
   if (watchId !== null && navigator.geolocation) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
   offRouteCount = 0; activeRoute = null;
 }
+
+$('openGoogleMapsBtn').onclick = () => {
+  if (!navTarget) return;
+  const originParam = lastNavPoint ? `&origin=${lastNavPoint.lat},${lastNavPoint.lon}` : '';
+  const url = `https://www.google.com/maps/dir/?api=1${originParam}&destination=${navTarget.lat},${navTarget.lon}&travelmode=driving`;
+  window.open(url, '_blank', 'noopener');
+};
+
+$('openWazeBtn').onclick = () => {
+  if (!navTarget) return;
+  const url = `https://waze.com/ul?ll=${navTarget.lat},${navTarget.lon}&navigate=yes`;
+  window.open(url, '_blank', 'noopener');
+};
 
 async function startNavigation(target, origin) {
   try {
@@ -919,23 +1027,27 @@ async function startNavigation(target, origin) {
     stopNavigation();
     toast(tr('routeSearching'));
     navTarget = target;
+    lastNavPoint = { lat: origin.lat, lon: origin.lon };
     showScreen('navigation');
     $('nextManeuver').textContent = tr('routePreparing');
     $('navProgress').textContent = tr('routeTo') + (target.label || '');
     initNavMap(origin, target);
     await drawRoute(origin, target);
-    lastNavPoint = { lat: origin.lat, lon: origin.lon };
 
     if (navigator.geolocation) {
       watchId = navigator.geolocation.watchPosition(
         async pos => {
           const here = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-          const acc = Math.round(pos.coords.accuracy || 9999);
+          const acc = Math.round(pos.coords.accuracy || 100);
           lastNavPoint = here;
           if (navMarker) navMarker.setLatLng([here.lat, here.lon]);
           if (acc <= 100) { updateRemainingMetrics(here); $('navProgress').textContent = `${tr('routeGps')} · ±${acc} m`; }
-          else $('navProgress').textContent = language === 'zh' ? `${tr('routeGps')} · ±${acc} m（精度较低，路线进度仅供参考）` : `${tr('routeGps')} · ±${acc} m (low accuracy)`;
-          if (distanceMeters(here, navTarget) < 35) { $('nextManeuver').textContent = tr('routeArrive'); return; }
+          else $('navProgress').textContent = `${tr('routeGps')} · ±${acc} m`;
+          if (distanceMeters(here, navTarget) < 35) {
+            stepIndex = Math.max(0, currentRouteSteps.length - 1);
+            updateManeuver();
+            return;
+          }
           if (currentRouteSteps.length) {
             while (stepIndex < currentRouteSteps.length - 1) {
               const loc = currentRouteSteps[stepIndex]?.maneuver?.location;
