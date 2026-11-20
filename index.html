@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a8e629">
-<title>ParkFinder MY · v3.8 Test</title>
+<title>ParkFinder MY · v3.9 Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--lime:#a8e629;--lime-dark:#4e7e08;--ink:#17251b;--muted:#758174;--line:#e7ece4;--bg:#f5f7f3;--soft:#f0f6e9;--white:#fff;--shadow:0 8px 26px rgba(23,37,27,.055)}
@@ -49,7 +49,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .zone{border:1px solid #e3e9de;background:white;border-radius:24px;padding:9px 15px;font-size:12px;font-weight:800;color:#66745f;white-space:nowrap;cursor:pointer}
 .zone.active{background:var(--lime);border-color:var(--lime);color:#20340c}
 
-/* Interactive Overview Map with Clickable P Markers */
 .overview-wrap{display:none;position:relative;margin-bottom:14px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#eef2ec;box-shadow:var(--shadow)}
 .overview-wrap.show{display:block}
 #overviewMap{width:100%;height:265px;z-index:1}
@@ -64,7 +63,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .poi-btn-main{border:0;border-radius:10px;background:#1a73e8;color:#fff;padding:8px 13px;font-size:12px;font-weight:800;cursor:pointer}
 .poi-btn-sub{border:1px solid #d1d5db;border-radius:10px;background:#fff;color:#374151;padding:7px 11px;font-size:12px;font-weight:750;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 
-/* Clean, Bright Google Maps Daytime Soft Palette */
 .gmaps-soft-tiles .leaflet-tile-pane{filter:saturate(0.56) brightness(1.03) contrast(0.95)}
 
 .cards{display:grid;gap:9px}
@@ -80,7 +78,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .cardaction{grid-column:2/4;display:flex;justify-content:flex-end;gap:12px;margin-top:-2px;flex-wrap:wrap}
 .textbtn{border:0;background:none;color:#4e7e08;font-size:11px;font-weight:850;padding:3px;cursor:pointer}
 
-/* Restored Per-Card Visual Preview Drawer */
 .card-visual{grid-column:1/4;display:none;margin-top:6px;padding-top:10px;border-top:1px dashed #e3eadc}
 .card-visual.open{display:block}
 .visual-grid{display:grid;grid-template-columns:1fr;gap:10px}
@@ -115,7 +112,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 .maplink{color:#4e7e08;font-weight:800;text-decoration:none}
 .foot{font-size:10px;color:#929b8d;text-align:center;margin:16px 0 0}
 
-/* Bright, Comfortable Fullscreen Google Maps-Style Navigation HUD */
+/* Fullscreen Google Maps-Style Navigation HUD */
 #navigationScreen.active{position:fixed;inset:0;z-index:60;width:100vw;height:100dvh;overflow:hidden;background:#eef2ec}
 #routeMap{position:absolute;inset:0;width:100%;height:100%;z-index:1}
 
@@ -157,7 +154,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 
 /* Classic Google Maps White Puck + Sharp Blue Direction Arrow */
 .nav-arrow-wrap{width:54px;height:54px;display:grid;place-items:center}
-.nav-arrow-puck{width:46px;height:46px;border-radius:50%;background:#ffffff;border:2px solid #dbeafe;box-shadow:0 4px 14px rgba(26,115,232,.38),0 2px 6px rgba(0,0,0,.18);display:grid;place-items:center;transition:transform .22s ease-out}
+.nav-arrow-puck{width:46px;height:46px;border-radius:50%;background:#ffffff;border:2px solid #dbeafe;box-shadow:0 4px 14px rgba(26,115,232,.38),0 2px 6px rgba(0,0,0,.18);display:grid;place-items:center;transition:transform .18s ease-out}
 .nav-arrow-svg{width:28px;height:28px;display:block}
 
 .dest-pin{width:24px;height:24px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ea4335;transform:rotate(-45deg);box-shadow:0 2px 8px #0004}
@@ -196,23 +193,23 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
       <div class="field">
         <label data-i="originLabel">出发点 / 当前定位</label>
         <div class="inputrow">
-          <input class="input" id="originInput" autocomplete="off" value="" placeholder="Enter starting point or tap Locate me (English)">
+          <input class="input" id="originInput" autocomplete="off" value="" placeholder="Enter starting point or tap Locate me">
           <button class="btn" id="locBtn" type="button" data-i="loc">⌖ 重新定位</button>
         </div>
         <div class="suggestions" id="originSuggest"></div>
-        <div class="hint" id="originHint" data-i="originHint">初始留空；点击“重新定位”自动匹配英文楼宇/商场名，或手动输入并点选建议。</div>
+        <div class="hint" id="originHint" data-i="originHint">初始留空；点击“重新定位”自动匹配楼宇/商场名，或支持中英文输入搜索（如 康乐夜市 / Mid Valley）。</div>
       </div>
 
       <div class="field">
         <label data-i="destLabel">你要去哪里？</label>
-        <input class="input" id="destInput" autocomplete="off" placeholder="Search restaurant, mall, office or address (e.g. Mitasu)">
+        <input class="input" id="destInput" autocomplete="off" placeholder="Search in Chinese or English (e.g. 康乐夜市, Mid Valley)">
         <div class="suggestions" id="destSuggest"></div>
-        <div class="hint" id="destHint" data-i="destHint">输入至少 2 个字母，下拉列表将显示英文地点建议。</div>
+        <div class="hint" id="destHint" data-i="destHint">支持中文和英文搜索，输入至少 2 个字即可查看地点建议。</div>
       </div>
 
       <div class="locstatus">
         <span class="dot"></span>
-        <span id="geoStatus" data-i="geoIdle">定位和地址搜索统一采用英文地名输出；三级召回优先匹配附近商场、商业广场与合规公共停车区。</span>
+        <span id="geoStatus" data-i="geoIdle">支持中英文双语地点搜索；多源航向与罗盘融合带路，移动或转向时蓝箭实时更新。</span>
       </div>
 
       <button class="primary" id="findBtn" type="button" data-i="find">⌕ 查找附近停车区域</button>
@@ -258,18 +255,18 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
   <section class="screen" id="exploreScreen">
     <div class="panel">
       <h3 data-i="exploreTitle">探索附近</h3>
-      <p class="hint" data-i="exploreText">输入英文地点后，使用地址建议确认目的地。</p>
+      <p class="hint" data-i="exploreText">支持中英文输入，使用下拉建议确认目的地。</p>
       <button class="primary" id="backSearch" type="button" data-i="startSearch">开始搜索地点</button>
     </div>
     <div class="panel">
       <h3 data-i="quickPlaces">常用地点</h3>
       <div class="simple-list">
+        <div class="simple-item" data-place="康乐夜市">康乐夜市 (Taman Connaught Night Market)<small>Jalan Cerdas, Taman Connaught, Cheras, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="Mitasu">Mitasu<small>Old Klang Road, Taman Desa, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="KL Gateway Mall">KL Gateway Mall<small>2, Jalan Kerinchi, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="Mid Valley Megamall">Mid Valley Megamall<small>Lingkaran Syed Putra, Mid Valley City, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="Strata Office, Menara 1, KL Eco City">Strata Office · Menara 1 · KL Eco City<small>Kampung Haji Abdullah Hukum, Kuala Lumpur</small></div>
         <div class="simple-item" data-place="The Gardens Mall">The Gardens Mall<small>Mid Valley City, Kuala Lumpur</small></div>
-        <div class="simple-item" data-place="NU Sentral">NU Sentral<small>Jalan Tun Sambanthan, Brickfields, Kuala Lumpur</small></div>
       </div>
     </div>
   </section>
@@ -292,9 +289,9 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
     <div class="panel">
       <h3 data-i="profileTitle">我的</h3>
       <div class="profile-row"><span data-i="language">语言 / Language</span><button class="btn" id="profileLang" type="button">简体中文 / English</button></div>
-      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.8 Test</span></div>
-      <div class="profile-row"><span data-i="mapSource">免费地图与停车数据源</span><span class="pill">OSM / Esri · Photon · Overpass · OSRM</span></div>
-      <p class="notice" data-i="profileNote">三级停车场召回（含周边商场/商业体借停与商圈兜底）+ 卡片「可视图」恢复 + 清爽日间导航视野（v3.8）。</p>
+      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.9 Test</span></div>
+      <div class="profile-row"><span data-i="mapSource">免费地图与停车数据源</span><span class="pill">OSM / Esri · Photon · Nominatim · Overpass · OSRM</span></div>
+      <p class="notice" data-i="profileNote">多源航向与罗盘融合转箭 + 中英文双语搜索（支持康乐夜市等中文地标）（v3.9）。</p>
     </div>
   </section>
 
@@ -379,9 +376,9 @@ const I = {
   zh: {
     tagline: '马来西亚智能停车助手', hero: '找车位，轻松一点。', heroSub: '提前搜索目的地附近的商场与公共停车区域，减少绕路。',
     trip: '① 设置行程', originLabel: '出发点 / 当前定位', loc: '⌖ 重新定位',
-    originHint: '初始留空；点击“重新定位”自动匹配英文楼宇/商场名，或手动输入并点选建议。',
-    destLabel: '你要去哪里？', destHint: '输入至少 2 个字母，下拉列表将显示英文地点建议。',
-    geoIdle: '定位和地址搜索统一采用英文地名输出；三级召回优先匹配附近商场、商业广场与合规公共停车区。',
+    originHint: '初始留空；点击“重新定位”自动匹配楼宇/商场名，或支持中英文输入搜索（如 康乐夜市 / Mid Valley）。',
+    destLabel: '你要去哪里？', destHint: '支持中文和英文搜索，输入至少 2 个字即可查看地点建议。',
+    geoIdle: '支持中英文双语地点搜索；多源航向与罗盘融合带路，移动或转向时蓝箭实时更新。',
     find: '⌕ 查找附近停车区域', routeToDestination: '↗ 开始导航到目的地',
     near: '附近公共/商场停车区域', closest: '点击地图 P 标或卡片“可视图”查看详情', all: '全部区域',
     parkingInitEmpty: '输入并确认目的地后，点击“查找附近停车区域”检索附近商场与公共停车场。',
@@ -391,24 +388,24 @@ const I = {
     directions: '导航', focusOnMap: '地图定位', visualView: '可视图', hideVisual: '收起视图', save: '收藏', savedState: '已收藏',
     disclaimer: '已自动过滤私人住宅/公寓（Condo/Residence）停车场，优先推荐商场、周边商业体及合规公共停车区域（Zone A ≤500m，Zone B ≤1000m）。驾驶时请保持手机屏幕常亮。',
     home: '首页', explore: '探索', saved: '收藏', activity: '动态', profile: '我的',
-    exploreTitle: '探索附近', exploreText: '输入英文地点后，使用地址建议确认目的地。',
+    exploreTitle: '探索附近', exploreText: '支持中英文输入，使用下拉建议确认目的地。',
     startSearch: '开始搜索地点', quickPlaces: '常用地点', savedTitle: '收藏地点',
     noSaved: '你还没有收藏地点。搜索后可以收藏常用停车区域。', activityTitle: '最近动态',
     noActivity: '目前还没有活动记录。', profileTitle: '我的', language: '语言 / Language',
     version: '应用版本', mapSource: '免费地图与停车数据源',
-    profileNote: '三级停车场召回（含周边商场/商业体借停与商圈兜底）+ 卡片「可视图」恢复 + 清爽日间导航视野（v3.8）。',
-    locating: '正在匹配 250m 内英文楼宇/商场名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入英文地点。',
+    profileNote: '多源航向与罗盘融合转箭 + 中英文双语搜索（支持康乐夜市等中文地标）（v3.9）。',
+    locating: '正在匹配 250m 内楼宇/商场名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入地点。',
     locDenied: '定位权限已被拒绝，请在浏览器设置中允许定位，或手动输入出发点。',
     locTimeout: '定位请求超时，请检查信号或稍后重试。',
-    locApprox: '当前位置精度约 ±', meters: ' 米', searching: 'Searching places in English…',
-    noResults: 'No matching place found. Add street, mall or city in English.',
-    searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search temporarily unavailable.',
-    searchHintFull: 'Try e.g. Mitasu, KL Gateway Mall, Mid Valley Megamall.',
+    locApprox: '当前位置精度约 ±', meters: ' 米', searching: '正在搜索中英文地点…',
+    noResults: '暂时找不到匹配地点。可尝试切换中英文或补充商圈/城市名称。',
+    searchTimeout: '地点搜索请求超时，请稍后重试。', searchError: '地点搜索服务暂时不可用，请稍后重试。',
+    searchHintFull: '可尝试如：康乐夜市、Mid Valley Megamall、Taman Connaught。',
     destMissing: '请先输入目的地。', originMissing: '请先输入出发地点或使用定位。',
     savedToast: '已加入收藏', removedToast: '已取消收藏',
     routePreparing: '正在规划路线…', routeError: '暂时无法规划路线。请确认起终点后重试。',
     routeSearching: '正在规划路线…',
-    routeReady: '实况 GPS 导航已启动',
+    routeReady: '实况 GPS 导航已启动（支持位移与罗盘转箭）',
     routeOffRoute: '确认偏离路线，正在按当前位置重新规划…',
     routeSnapped: '已贴合路线行驶',
     routeFreeGps: 'GPS 实况追踪中',
@@ -424,9 +421,9 @@ const I = {
     tagline: 'Malaysia Smart Parking Assistant', hero: 'Find parking, stress less.',
     heroSub: 'Search public and mall parking near your destination before you arrive.',
     trip: '① Plan your trip', originLabel: 'Starting point / Current location', loc: '⌖ Locate me',
-    originHint: 'Starts blank; tap Locate me for English building/mall name or type manually.',
-    destLabel: 'Where are you going?', destHint: 'Type at least 2 letters to see English place suggestions.',
-    geoIdle: '3-tier recall finds nearby malls, commercial complexes & public parking in English.',
+    originHint: 'Starts blank; tap Locate me or search in Chinese or English (e.g. 康乐夜市, Mid Valley).',
+    destLabel: 'Where are you going?', destHint: 'Type at least 2 characters in Chinese or English for suggestions.',
+    geoIdle: 'Bilingual Chinese & English place search; multi-source heading & compass arrow rotation.',
     find: '⌕ Find nearby parking', routeToDestination: '↗ Start navigation to destination',
     near: 'Public & Mall Parking Nearby', closest: 'Tap map P pins or card Visual View for details', all: 'All zones',
     parkingInitEmpty: 'Confirm a destination, then tap "Find nearby parking" to search public & mall parking.',
@@ -436,24 +433,24 @@ const I = {
     directions: 'Navigate', focusOnMap: 'Show on map', visualView: 'Visual view', hideVisual: 'Hide view', save: 'Save', savedState: 'Saved',
     disclaimer: 'Private condo/residential parking is filtered out; malls, commercial complexes & public parking prioritized (Zone A ≤500m, Zone B ≤1000m).',
     home: 'Home', explore: 'Explore', saved: 'Saved', activity: 'Activity', profile: 'Profile',
-    exploreTitle: 'Explore nearby', exploreText: 'Confirm destinations using English place suggestions.',
+    exploreTitle: 'Explore nearby', exploreText: 'Search in Chinese or English and pick a suggestion.',
     startSearch: 'Search places', quickPlaces: 'Popular places', savedTitle: 'Saved places',
     noSaved: 'No saved places yet.', activityTitle: 'Recent activity',
     noActivity: 'No activity yet.', profileTitle: 'Profile', language: 'Language / Language',
     version: 'App version', mapSource: 'Free map & parking sources',
-    profileNote: '3-tier parking recall + per-card Visual View + bright daytime navigation view (v3.8).',
-    locating: 'Resolving building/mall name within 250m in English…', locFail: 'Could not get location. Check permission or enter English place name.',
+    profileNote: 'Multi-source heading & compass arrow + bilingual Chinese/English search (v3.9).',
+    locating: 'Resolving building/mall name within 250m…', locFail: 'Could not get location. Check permission or enter place name.',
     locDenied: 'Location permission denied. Enable it in browser settings or enter origin manually.',
     locTimeout: 'Location request timed out. Check signal and try again.',
-    locApprox: 'Location accuracy ~±', meters: ' m', searching: 'Searching places in English…',
-    noResults: 'No matching place found. Add street, mall or city in English.',
+    locApprox: 'Location accuracy ~±', meters: ' m', searching: 'Searching Chinese & English places…',
+    noResults: 'No matching place found. Try Chinese or English or add area/city.',
     searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search service is temporarily unavailable.',
-    searchHintFull: 'Try e.g. Mitasu, KL Gateway Mall, Mid Valley Megamall.',
+    searchHintFull: 'Try e.g. 康乐夜市, Mid Valley Megamall, Taman Connaught.',
     destMissing: 'Enter a destination first.', originMissing: 'Enter a starting point or use location first.',
     savedToast: 'Added to Saved', removedToast: 'Removed from Saved',
     routePreparing: 'Planning route…', routeError: 'Could not plan route. Check origin and destination.',
     routeSearching: 'Planning route…',
-    routeReady: 'Live GPS navigation active',
+    routeReady: 'Live GPS navigation active (movement & compass arrow)',
     routeOffRoute: 'Off route confirmed. Recalculating from live position…',
     routeSnapped: 'Snapped to route',
     routeFreeGps: 'Live GPS tracking',
@@ -605,22 +602,17 @@ async function fetchJson(url, ms = 8500, externalSignal = null) {
   }
 }
 
-function toEnglishText(str) {
+/* Keep both Chinese and English names cleanly (supports queries like "康乐夜市" or "Taman Connaught") */
+function cleanPlaceLabel(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/[\u4e00-\u9fff\u3400-\u4dbf]+/g, '')
-    .replace(/\s*[,·]\s*[,·]\s*/g, ', ')
-    .replace(/^[,\s·-]+|[,\s·-]+$/g, '')
-    .replace(/\s{2,}/g, ' ')
-    .trim();
+  return String(str).replace(/\s{2,}/g, ' ').trim();
 }
 
 function normalizePhoton(f) {
   const p = f.properties || {}, c = f.geometry?.coordinates || [];
-  const rawLabel = p.name || p.street || p.locality || p.district || p.city || 'Place';
-  const label = toEnglishText(rawLabel) || rawLabel;
+  const label = cleanPlaceLabel(p.name || p.street || p.locality || p.district || p.city || 'Place');
   const detail = [p.housenumber, p.street, p.suburb, p.district, p.city, p.state]
-    .map(toEnglishText)
+    .map(cleanPlaceLabel)
     .filter(Boolean)
     .filter((x, i, a) => a.indexOf(x) === i && x.toLowerCase() !== label.toLowerCase())
     .join(', ');
@@ -629,11 +621,10 @@ function normalizePhoton(f) {
 
 function normalizeNominatim(x) {
   const a = x.address || {};
-  const rawLabel = a.office || a.building || a.mall || a.shop || a.amenity || a.commercial || a.suburb || a.neighbourhood || a.road || x.name || String(x.display_name || 'Place').split(',')[0];
-  const label = toEnglishText(rawLabel) || rawLabel;
+  const label = cleanPlaceLabel(a.amenity || a.shop || a.mall || a.building || a.office || a.suburb || a.neighbourhood || a.road || x.name || String(x.display_name || 'Place').split(',')[0]);
   const detail = String(x.display_name || '')
     .split(',')
-    .map(toEnglishText)
+    .map(cleanPlaceLabel)
     .filter(Boolean)
     .filter((seg, i, arr) => arr.indexOf(seg) === i && seg.toLowerCase() !== label.toLowerCase())
     .slice(0, 5)
@@ -653,14 +644,15 @@ function dedupeAndRank(items, needle) {
     .sort((a, b) => {
       const score = x => {
         const t = (x.label + ' ' + x.detail).toLowerCase();
-        return (t.includes(q) ? -3 : 0) + ((t.includes('kuala lumpur') || t.includes('selangor') || t.includes('petaling jaya')) ? -1 : 0);
+        return (t.includes(q) ? -3 : 0) + ((t.includes('kuala lumpur') || t.includes('吉隆坡') || t.includes('selangor')) ? -1 : 0);
       };
       return score(a) - score(b);
     }).slice(0, 8);
 }
 
-async function photonQuery(term, signal) {
-  const u = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(term) + '&limit=8&lang=en&lat=3.139&lon=101.686';
+/* Query Photon in both zh & en so Chinese landmarks like "康乐夜市" and English names both resolve */
+async function photonQuery(term, lang, signal) {
+  const u = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(term) + '&limit=8&lang=' + lang + '&lat=3.139&lon=101.686';
   const d = await fetchJson(u, 6500, signal);
   return (d.features || []).filter(f => !f.properties?.countrycode || String(f.properties.countrycode).toLowerCase() === 'my').map(normalizePhoton);
 }
@@ -675,7 +667,7 @@ async function nominatimQuery(q, signal) {
   }
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
   nominatimLastCall = Date.now();
-  const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&accept-language=en&limit=6&countrycodes=my&q=' + encodeURIComponent(q);
+  const u = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&accept-language=zh-CN,en&limit=6&countrycodes=my&q=' + encodeURIComponent(q);
   const d = await fetchJson(u, 7500, signal);
   return (d || []).map(normalizeNominatim);
 }
@@ -689,18 +681,15 @@ async function queryPlaceProviders(q, allowFallback = true, signal = null) {
 
   let sawTimeout = false, sawServiceErr = false;
   const collected = [];
-  const terms = [raw];
-  if (!/malaysia/i.test(raw)) terms.push(raw + ', Malaysia');
+  const hasChinese = /[\u4e00-\u9fff]/.test(raw);
+  const langs = hasChinese ? ['zh', 'en'] : ['en', 'zh'];
 
-  try { collected.push(...await photonQuery(terms[0], signal)); }
-  catch (e) { if (e.name === 'AbortError') throw e; if (e.kind === 'timeout') sawTimeout = true; else sawServiceErr = true; }
-  let ranked = dedupeAndRank(collected, raw);
-
-  if (ranked.length < 4 && terms.length > 1) {
-    try { collected.push(...await photonQuery(terms[1], signal)); }
+  for (const lang of langs) {
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    try { collected.push(...await photonQuery(raw, lang, signal)); }
     catch (e) { if (e.name === 'AbortError') throw e; if (e.kind === 'timeout') sawTimeout = true; else sawServiceErr = true; }
-    ranked = dedupeAndRank(collected, raw);
   }
+  let ranked = dedupeAndRank(collected, raw);
   if (ranked.length) { setCache(key, ranked); return ranked; }
 
   if (allowFallback) {
@@ -738,7 +727,7 @@ async function searchPlaces(q, box, kind) {
     if (e.name === 'AbortError' || box.dataset.requestId !== reqId) return;
     box.innerHTML = `
       <div class="suggestion">${escapeHtml(classifySearchErrorMessage(e))}<small>${escapeHtml(tr('searchHintFull'))}</small></div>
-      <div class="suggestion" id="retryPlace_${kind}">↻ Retry search</div>
+      <div class="suggestion" id="retryPlace_${kind}">↻ 重新搜索 / Retry</div>
     `;
     box.querySelector(`#retryPlace_${kind}`).onclick = () => searchPlaces(q, box, kind);
     box.classList.add('show');
@@ -768,11 +757,11 @@ function selectResolvedPlace(item, kind, box) {
   if (kind === 'origin') {
     originPoint = point;
     $('originInput').value = item.label;
-    $('originHint').textContent = item.detail || 'Starting point confirmed';
+    $('originHint').textContent = item.detail || '已确认出发位置';
   } else {
     destPoint = point;
     $('destInput').value = item.label;
-    $('destHint').textContent = item.detail || 'Destination confirmed';
+    $('destHint').textContent = item.detail || '已确认目的地';
   }
   box.classList.remove('show');
 }
@@ -828,14 +817,14 @@ async function reversePlaceName(lat, lon) {
     const pois = (ov.elements || []).map(el => {
       const pLat = Number(el.lat ?? el.center?.lat), pLon = Number(el.lon ?? el.center?.lon);
       const t = el.tags || {};
-      const name = toEnglishText(t['name:en'] || t.name || '');
+      const name = cleanPlaceLabel(t['name:en'] || t.name || '');
       const isLandmark = Boolean(t.office || t.mall || t.shop === 'mall' || /eco city|menara|tower|strata|mall|gateway|mid valley/i.test(name));
       return {
         name,
         isLandmark,
         dist: (Number.isFinite(pLat) && Number.isFinite(pLon)) ? distanceMeters({ lat, lon }, { lat: pLat, lon: pLon }) : 999
       };
-    }).filter(x => x.name && x.name.length >= 3 && !/parking|toilet|atm/i.test(x.name))
+    }).filter(x => x.name && x.name.length >= 2 && !/parking|toilet|atm/i.test(x.name))
       .sort((a, b) => (a.isLandmark === b.isLandmark ? a.dist - b.dist : (a.isLandmark ? -1 : 1)));
 
     if (pois.length) {
@@ -850,7 +839,7 @@ async function reversePlaceName(lat, lon) {
       try {
         const rev = await fetchJson(`https://photon.komoot.io/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&lang=en`, 4000);
         const f = rev.features?.[0]?.properties || {};
-        const area = [f.street, f.suburb, f.district, f.city].map(toEnglishText).filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(', ');
+        const area = [f.street, f.suburb, f.district, f.city].map(cleanPlaceLabel).filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(', ');
         return { name: primaryTitle, sub: area || 'Kuala Lumpur, Malaysia' };
       } catch (_) {
         return { name: primaryTitle, sub: 'Kuala Lumpur, Malaysia' };
@@ -873,9 +862,9 @@ async function reversePlaceName(lat, lon) {
     const r = await fetchJson(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&accept-language=en`, 6500);
     const a = r.address || {};
     const rawName = a.office || a.building || a.mall || a.shop || a.amenity || a.commercial || a.road || a.suburb || r.name || 'Current Location';
-    const name = toEnglishText(rawName) || 'Current Location';
+    const name = cleanPlaceLabel(rawName) || 'Current Location';
     const sub = [a.road, a.suburb, a.city || a.county, a.state]
-      .map(toEnglishText)
+      .map(cleanPlaceLabel)
       .filter(Boolean)
       .filter((x, i, arr) => arr.indexOf(x) === i && x.toLowerCase() !== name.toLowerCase())
       .join(', ');
@@ -897,7 +886,7 @@ $('locBtn').onclick = () => {
       const place = await reversePlaceName(lat, lon);
       originPoint = { lat, lon, label: place.name, detail: place.sub, accuracy: accRounded, isGps: true };
       $('originInput').value = place.name;
-      $('originHint').textContent = place.sub || 'Exact building/area resolved in English';
+      $('originHint').textContent = place.sub || 'Current location resolved';
       $('geoStatus').textContent = `${tr('locApprox')}${accRounded}${tr('meters')}`;
       btn.disabled = false;
     },
@@ -938,7 +927,7 @@ function bearingDeg(a, b) {
   return (deg(Math.atan2(y, x)) + 360) % 360;
 }
 
-function smoothAngleDeg(prev, next, alpha = 0.35) {
+function smoothAngleDeg(prev, next, alpha = 0.45) {
   if (!Number.isFinite(prev)) return (next + 360) % 360;
   const diff = ((next - prev + 540) % 360) - 180;
   return (prev + diff * alpha + 360) % 360;
@@ -959,12 +948,12 @@ function isPublicOrMallParking(tags, rawName, distToDest) {
 }
 
 function buildClearParkingInfo(tags, destPoint, distToDest) {
-  const rawName = toEnglishText(tags['name:en'] || tags.name || tags.operator || '');
+  const rawName = cleanPlaceLabel(tags['name:en'] || tags.name || tags.operator || '');
   const pType = String(tags.parking || '').toLowerCase();
   const bType = String(tags.building || '').toLowerCase();
   const isCommercialComplex = Boolean(tags.shop === 'mall' || tags.amenity === 'marketplace' || tags.tourism === 'hotel' || ['commercial', 'retail'].includes(bType));
-  const destLabel = toEnglishText(destPoint?.label || '');
-  const isMallTarget = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|centre|center|eco city|gateway/i.test(destLabel);
+  const destLabel = cleanPlaceLabel(destPoint?.label || '');
+  const isMallTarget = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|centre|center|eco city|gateway|夜市|商场/i.test(destLabel);
   const isOnsiteMall = isMallTarget && distToDest <= 260;
 
   let categoryZh = '合规公共停车区域';
@@ -982,7 +971,7 @@ function buildClearParkingInfo(tags, destPoint, distToDest) {
     categoryZh = '合规路侧公共车位';
     categoryEn = 'Compliant Street-Side Public Parking';
   } else if (isMallTarget) {
-    categoryZh = '商场周边公共停车场';
+    categoryZh = '商圈/商场周边公共停车场';
     categoryEn = 'Nearby Public Parking';
   }
 
@@ -1001,13 +990,11 @@ function buildClearParkingInfo(tags, destPoint, distToDest) {
   return { displayName, categoryZh, categoryEn, isOnsiteMall };
 }
 
-/* 3-Tier Recall: (1) Overpass parking + nearby malls/commercial complexes, (2) Area/Street fallback, (3) Commercial/Roadside parking guide */
 async function queryParkingFast(point) {
   const cKey = `${point.lat.toFixed(3)},${point.lon.toFixed(3)}`;
   const cached = parkingCache.get(cKey);
   if (cached && (Date.now() - cached.time < 15 * 60 * 1000)) return cached.items;
 
-  // Tier 1: Search parking lots + nearby malls/commercial plazas/hotels within 1500m (for single shops like Mitasu)
   const query = `[out:json][timeout:8];(node(around:1500,${point.lat},${point.lon})[amenity=parking];way(around:1500,${point.lat},${point.lon})[amenity=parking];relation(around:1500,${point.lat},${point.lon})[amenity=parking];way(around:650,${point.lat},${point.lon})[building=parking];node(around:1200,${point.lat},${point.lon})[shop=mall]["name"];way(around:1200,${point.lat},${point.lon})[shop=mall]["name"];way(around:1000,${point.lat},${point.lon})[building=commercial]["name"];node(around:900,${point.lat},${point.lon})[tourism=hotel]["name"];);out center tags 45;`;
 
   let rawElements = [];
@@ -1020,7 +1007,7 @@ async function queryParkingFast(point) {
     const lat = Number(el.lat ?? el.center?.lat), lon = Number(el.lon ?? el.center?.lon), tags = el.tags || {};
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
     const dist = distanceMeters({ lat, lon }, point);
-    const rawName = toEnglishText(tags['name:en'] || tags.name || tags.operator || '');
+    const rawName = cleanPlaceLabel(tags['name:en'] || tags.name || tags.operator || '');
     if (!isPublicOrMallParking(tags, rawName, dist)) return null;
     const info = buildClearParkingInfo(tags, point, dist);
     return {
@@ -1038,30 +1025,29 @@ async function queryParkingFast(point) {
     };
   }).filter(Boolean);
 
-  const destLabel = toEnglishText(point.label || '');
-  const detailParts = toEnglishText(point.detail || '').split(',').map(s => s.trim()).filter(Boolean);
-  const streetOrArea = detailParts.find(s => !/malaysia|kuala lumpur|selangor|federal territory/i.test(s)) || destLabel;
+  const destLabel = cleanPlaceLabel(point.label || '');
+  const detailParts = cleanPlaceLabel(point.detail || '').split(',').map(s => s.trim()).filter(Boolean);
+  const streetOrArea = detailParts.find(s => !/malaysia|kuala lumpur|selangor|federal territory|马来西亚|吉隆坡/i.test(s)) || destLabel;
 
-  const isMallDest = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|eco city|gateway/i.test(destLabel);
+  const isMallDest = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|eco city|gateway|夜市|商场/i.test(destLabel);
   if (isMallDest && !mapped.some(x => x._dist <= 160)) {
     mapped.unshift({
       id: 'mall-onsite-' + cKey,
       lat: point.lat,
       lon: point.lon,
-      name: `${destLabel} · Main Basement / Multi-Storey Car Park`,
+      name: `${destLabel} · Nearby Commercial / Public Car Park`,
       shortName: 'Parking lot',
-      categoryZh: '商场本体室内停车场（首选）',
-      categoryEn: 'Mall On-Site Car Park (Primary)',
+      categoryZh: '商圈/商场周边公共停车场（首选）',
+      categoryEn: 'Nearby Commercial / Public Car Park',
       isOnsiteMall: true,
-      fee: 'yes',
+      fee: '',
       access: 'public',
-      parking: 'multi-storey',
+      parking: 'surface',
       capacity: '',
       _dist: 35
     });
   }
 
-  // Tier 2: Area/Street Nominatim search for nearby plazas, malls & parking in the same district/road (e.g. "Taman Desa plaza" or "Old Klang Road parking")
   if (mapped.length < 2 && streetOrArea) {
     try {
       const qName = encodeURIComponent(`plaza mall parking ${streetOrArea} Kuala Lumpur`);
@@ -1069,7 +1055,7 @@ async function queryParkingFast(point) {
       (nom || []).forEach((x, idx) => {
         const lat = Number(x.lat), lon = Number(x.lon);
         const dist = distanceMeters({ lat, lon }, point);
-        const rawName = toEnglishText(String(x.display_name || '').split(',')[0]);
+        const rawName = cleanPlaceLabel(String(x.display_name || '').split(',')[0]);
         if (Number.isFinite(lat) && Number.isFinite(lon) && dist <= 2200 && !PRIVATE_CONDO_REGEX.test(rawName)) {
           mapped.push({
             id: 'nom-area-' + idx, lat, lon,
@@ -1086,7 +1072,6 @@ async function queryParkingFast(point) {
     } catch (_) {}
   }
 
-  // Tier 3: Commercial / Roadside parking zone fallback so single shops (like Mitasu) never return an empty dead-end
   if (!mapped.length) {
     const areaTitle = streetOrArea || destLabel || 'Destination Area';
     mapped.push({
@@ -1101,20 +1086,6 @@ async function queryParkingFast(point) {
       fee: '', access: 'public', parking: 'street_side', capacity: '',
       _dist: 25
     });
-    if (streetOrArea && streetOrArea.toLowerCase() !== destLabel.toLowerCase()) {
-      mapped.push({
-        id: 'zone-road-' + cKey,
-        lat: point.lat + 0.0012,
-        lon: point.lon + 0.0012,
-        name: `${streetOrArea} · Public Street-Side Parking Zone`,
-        shortName: `${streetOrArea} Parking`,
-        categoryZh: '所在路段公共路边停车区',
-        categoryEn: 'Public Street-Side Parking Zone',
-        isOnsiteMall: false,
-        fee: '', access: 'public', parking: 'street_side', capacity: '',
-        _dist: 185
-      });
-    }
   }
 
   const deduped = new Map();
@@ -1149,7 +1120,6 @@ function renderParkingState(status) {
   $('parkingCards').innerHTML = `<div class="empty">${escapeHtml(tr(status === 'empty' ? 'parkingNoResult' : (status === 'error' ? 'parkingServiceFail' : 'parkingInitEmpty')))}</div>`;
 }
 
-/* --- Per-Card Visual Preview (Mini Map + Mapillary Street Thumb + External Links) --- */
 async function loadMapillaryThumb(lat, lon, boxEl) {
   if (!boxEl) return;
   try {
@@ -1203,7 +1173,6 @@ function toggleCardVisual(card, p, dest) {
   loadMapillaryThumb(p.lat, p.lon, streetBox);
 }
 
-/* --- Overview Interactive Map with Clickable P Markers --- */
 let overviewMap = null, overviewMarkers = [], activePoiItem = null;
 
 function openOverviewPoiSheet(p, dest, idx) {
@@ -1412,11 +1381,33 @@ $('routeDestBtn').onclick = async () => {
   }
 };
 
-/* --- Clean Upright Navigation Engine with Classic Blue Arrow & Look-Ahead Camera --- */
+/* --- Navigation Engine with Multi-Source Heading & Compass Arrow Rotation --- */
 let navMap = null, navMarker = null, navDestMarker = null, routeLineOuter = null, routeLineInner = null, navParkingMarkers = [];
 let watchId = null, currentRouteSteps = [], stepIndex = 0, lastSpokenIndex = -1;
-let lastRawGps = null, lastDisplayedPos = null, stableHeading = 0;
+let lastRawGps = null, lastDisplayedPos = null, stableHeading = 0, compassHeading = null;
 let navTarget = null, activeRoute = null, lastReroute = 0, offRouteCount = 0, selectedNavPoi = null;
+
+function handleDeviceOrientation(ev) {
+  if (!ev) return;
+  let deg = null;
+  if (typeof ev.webkitCompassHeading === 'number' && Number.isFinite(ev.webkitCompassHeading) && ev.webkitCompassHeading >= 0) {
+    deg = ev.webkitCompassHeading;
+  } else if (ev.absolute && typeof ev.alpha === 'number' && Number.isFinite(ev.alpha)) {
+    const screenAngle = (screen.orientation && typeof screen.orientation.angle === 'number')
+      ? screen.orientation.angle
+      : (typeof window.orientation === 'number' ? window.orientation : 0);
+    deg = (360 - ev.alpha + screenAngle) % 360;
+  }
+  if (deg !== null) {
+    compassHeading = (deg + 360) % 360;
+    // If GPS has not yet moved enough to establish a course or speed is very low, use compass gently
+    const movedRecently = lastRawGps && lastRawGps._courseAge && (Date.now() - lastRawGps._courseAge < 3500);
+    if (!movedRecently && watchId !== null) {
+      stableHeading = smoothAngleDeg(stableHeading, compassHeading, 0.35);
+      setArrowHeading(stableHeading);
+    }
+  }
+}
 
 function setArrowHeading(deg) {
   const puck = document.getElementById('navArrowPuck');
@@ -1648,8 +1639,9 @@ async function rerouteFrom(here) {
 
 function stopNavigation() {
   if (watchId !== null && navigator.geolocation) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+  window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
   if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
-  offRouteCount = 0; activeRoute = null; lastRawGps = null; lastDisplayedPos = null;
+  offRouteCount = 0; activeRoute = null; lastRawGps = null; lastDisplayedPos = null; compassHeading = null;
 }
 
 async function startNavigation(target, origin) {
@@ -1662,10 +1654,17 @@ async function startNavigation(target, origin) {
     toast(tr('routeSearching'));
     navTarget = target;
     lastDisplayedPos = { lat: origin.lat, lon: origin.lon };
+    lastRawGps = { lat: origin.lat, lon: origin.lon, _ts: Date.now(), _courseAge: 0 };
     showScreen('navigation');
     $('nextManeuver').textContent = tr('routePreparing');
     $('navProgress').textContent = tr('routeTo') + (target.label || '');
     initNavMap(origin, target);
+
+    // Request iOS compass permission if needed and attach deviceorientation listener
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      try { await DeviceOrientationEvent.requestPermission(); } catch (_) {}
+    }
+    window.addEventListener('deviceorientation', handleDeviceOrientation, true);
 
     queryParkingFast(target).then(list => {
       if (list.length) {
@@ -1684,7 +1683,7 @@ async function startNavigation(target, origin) {
           const acc = Math.round(Number.isFinite(pos.coords.accuracy) ? pos.coords.accuracy : 100);
           const now = pos.timestamp || Date.now();
 
-          if (acc > 75 && lastDisplayedPos) {
+          if (acc > 80 && lastDisplayedPos) {
             $('navProgress').className = 'hud-status-line warn';
             $('navProgress').textContent = `${tr('routeWeakGps')} · ±${acc} m`;
             return;
@@ -1693,7 +1692,7 @@ async function startNavigation(target, origin) {
           let speedMs = Number.isFinite(pos.coords.speed) && pos.coords.speed >= 0 ? pos.coords.speed : null;
           if (speedMs === null && lastRawGps && now > lastRawGps._ts) {
             const dt = (now - lastRawGps._ts) / 1000;
-            if (dt >= 0.8) speedMs = distanceMeters(lastRawGps, raw) / dt;
+            if (dt >= 0.6) speedMs = distanceMeters(lastRawGps, raw) / dt;
           }
           const speedKmh = Number.isFinite(speedMs) ? Math.round(speedMs * 3.6) : null;
           if (speedKmh !== null && speedKmh < 220) {
@@ -1704,24 +1703,32 @@ async function startNavigation(target, origin) {
           const canSnap = proj && acc <= 55 && proj.distance <= 38;
           const displayPos = canSnap ? proj.projected : raw;
 
+          // Multi-source heading calculation so the blue arrow rotates responsively on movement or turn
           let candidateHeading = null;
-          if (Number.isFinite(pos.coords.heading) && pos.coords.heading >= 0 && (speedMs === null || speedMs >= 1.4)) {
+          let updatedCourse = false;
+          const movedDist = lastRawGps ? distanceMeters(lastRawGps, raw) : 0;
+
+          if (Number.isFinite(pos.coords.heading) && pos.coords.heading >= 0 && movedDist >= 1.5) {
             candidateHeading = pos.coords.heading;
-          } else if (lastRawGps && distanceMeters(lastRawGps, raw) >= 7 && (speedMs === null || speedMs >= 1.4)) {
+            updatedCourse = true;
+          } else if (movedDist >= 2.5) {
             candidateHeading = bearingDeg(lastRawGps, raw);
-          } else if (canSnap && Number.isFinite(proj.segmentBearing) && (speedMs !== null && speedMs >= 1.4)) {
-            candidateHeading = proj.segmentBearing;
+            updatedCourse = true;
+          } else if (Number.isFinite(compassHeading)) {
+            candidateHeading = compassHeading;
           }
 
           if (candidateHeading !== null) {
-            const blended = (canSnap && Number.isFinite(proj.segmentBearing))
-              ? smoothAngleDeg(candidateHeading, proj.segmentBearing, 0.45)
-              : candidateHeading;
-            stableHeading = smoothAngleDeg(stableHeading, blended, 0.35);
+            stableHeading = smoothAngleDeg(stableHeading, candidateHeading, updatedCourse ? 0.55 : 0.35);
             setArrowHeading(stableHeading);
           }
 
-          lastRawGps = { lat: raw.lat, lon: raw.lon, _ts: now };
+          lastRawGps = {
+            lat: raw.lat,
+            lon: raw.lon,
+            _ts: now,
+            _courseAge: updatedCourse ? Date.now() : (lastRawGps?._courseAge || 0)
+          };
           lastDisplayedPos = displayPos;
 
           if (navMarker) navMarker.setLatLng([displayPos.lat, displayPos.lon]);
@@ -1762,7 +1769,7 @@ async function startNavigation(target, origin) {
           }
         },
         () => { $('navProgress').textContent = tr('navPermission'); },
-        { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
+        { enableHighAccuracy: true, maximumAge: 800, timeout: 15000 }
       );
     } else $('navProgress').textContent = tr('noGeo');
   } catch (e) {
