@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#a8e629">
-<title>ParkFinder MY · v3.5 Test</title>
+<title>ParkFinder MY · v3.6 Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 <style>
 :root{--lime:#a8e629;--lime-dark:#4e7e08;--ink:#17251b;--muted:#758174;--line:#e7ece4;--bg:#f5f7f3;--soft:#f0f6e9;--white:#fff;--shadow:0 8px 26px rgba(23,37,27,.055)}
@@ -64,7 +64,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-sys
 .poi-btn-main{border:0;border-radius:10px;background:#1a73e8;color:#fff;padding:8px 13px;font-size:12px;font-weight:800;cursor:pointer}
 .poi-btn-sub{border:1px solid #d1d5db;border-radius:10px;background:#fff;color:#374151;padding:7px 11px;font-size:12px;font-weight:750;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 
-/* Google Maps Soft Low-Saturation Tile Style */
 .gmaps-soft-tiles .leaflet-tile-pane{filter:saturate(0.42) brightness(1.04) contrast(0.93)}
 
 .cards{display:grid;gap:9px}
@@ -101,47 +100,77 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 .maplink{color:#4e7e08;font-weight:800;text-decoration:none}
 .foot{font-size:10px;color:#929b8d;text-align:center;margin:16px 0 0}
 
-/* Fullscreen Google Maps-style Navigation HUD */
-#navigationScreen.active{position:fixed;inset:0;z-index:60;width:100vw;height:100dvh;overflow:hidden;background:#f1f3f4}
-#routeMap{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+/* Fullscreen Driver 3D Heading-Up HUD (Night Dark Mode default + Day Light Toggle) */
+#navigationScreen.active{position:fixed;inset:0;z-index:60;width:100vw;height:100dvh;overflow:hidden;background:#1b2636;perspective:950px}
+#navigationScreen.day-theme{background:#eef2ec}
+.nav-stage{position:absolute;inset:-24%;width:148%;height:148%;left:-24%;top:-24%;transform-origin:50% 54%;transition:transform .24s ease-out;z-index:1}
+#routeMap{width:100%;height:100%}
+#navigationScreen:not(.day-theme) #routeMap .leaflet-tile-pane{filter:invert(0.91) hue-rotate(185deg) saturate(0.75) brightness(0.88) contrast(1.06)}
+#navigationScreen.day-theme #routeMap .leaflet-tile-pane{filter:saturate(0.45) brightness(1.03) contrast(0.94)}
+
 .hud-top{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;z-index:70;pointer-events:none}
-.hud-main-turn{background:#0b5d43;color:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px rgba(0,0,0,.24);pointer-events:auto}
+.hud-main-turn{background:#095d44;color:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:auto}
 .hud-turn-arrow{width:46px;height:46px;display:grid;place-items:center;font-size:34px;font-weight:900;flex:none;line-height:1}
 .hud-turn-body{flex:1;min-width:0}
 .hud-turn-dist{font-size:18px;font-weight:800;color:#d6f5e8;line-height:1.15}
 .hud-turn-road{font-size:21px;font-weight:900;line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hud-next-pill{display:inline-flex;align-items:center;gap:6px;background:#084632;color:#e8f8f1;border-radius:10px;padding:6px 11px;margin-top:6px;font-size:13px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.18)}
-.hud-right-tools{position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:70;display:flex;flex-direction:column;gap:10px}
-.hud-circle-btn{width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#1f2937;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:18px;font-weight:800;display:grid;place-items:center;cursor:pointer}
-.hud-circle-btn.active{background:#1a73e8;color:#fff}
-.hud-speed{position:fixed;left:14px;bottom:calc(126px + env(safe-area-inset-bottom));z-index:70;width:64px;height:64px;border-radius:50%;background:#fff;border:3px solid #1a73e8;box-shadow:0 4px 14px rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
-.hud-speed strong{font-size:18px;font-weight:900;color:#111827}
-.hud-speed span{font-size:10px;color:#6b7280;font-weight:700}
-.hud-recenter{position:fixed;right:14px;bottom:calc(126px + env(safe-area-inset-bottom));z-index:70;width:48px;height:48px;border-radius:50%;border:0;background:#fff;color:#1a73e8;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:20px;font-weight:900;display:grid;place-items:center;cursor:pointer}
-.hud-bottom{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top-left-radius:22px;border-top-right-radius:22px;padding:12px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:space-between;gap:12px}
-.hud-close{width:44px;height:44px;border-radius:50%;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:20px;font-weight:800;display:grid;place-items:center;cursor:pointer;flex:none}
+.hud-next-pill{display:inline-flex;align-items:center;gap:6px;background:#074633;color:#e8f8f1;border-radius:10px;padding:6px 11px;margin-top:6px;font-size:13px;font-weight:800;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+
+.hud-right-tools{position:fixed;right:12px;top:48%;transform:translateY(-50%);z-index:70;display:flex;flex-direction:column;gap:10px}
+.hud-circle-btn{width:46px;height:46px;border-radius:50%;border:0;background:rgba(24,32,44,.86);color:#f3f4f6;box-shadow:0 4px 14px rgba(0,0,0,.35);font-size:17px;font-weight:800;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(6px)}
+#navigationScreen.day-theme .hud-circle-btn{background:#fff;color:#1f2937;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.hud-circle-btn.active{background:#0284c7;color:#fff}
+
+.hud-recenter-pill{position:fixed;left:14px;bottom:calc(124px + env(safe-area-inset-bottom));z-index:70;border:0;border-radius:18px;background:rgba(24,32,44,.92);color:#fff;padding:10px 15px;font-size:14px;font-weight:850;box-shadow:0 4px 14px rgba(0,0,0,.35);display:inline-flex;align-items:center;gap:6px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .2s}
+.hud-recenter-pill.show{opacity:1;pointer-events:auto}
+#navigationScreen.day-theme .hud-recenter-pill{background:#fff;color:#111827}
+
+.hud-speed-badge{position:fixed;right:14px;bottom:calc(124px + env(safe-area-inset-bottom));z-index:70;background:rgba(24,32,44,.88);color:#fff;border-radius:14px;padding:7px 11px;font-size:12px;font-weight:850;box-shadow:0 4px 14px rgba(0,0,0,.3);display:flex;align-items:baseline;gap:3px}
+#navigationScreen.day-theme .hud-speed-badge{background:#fff;color:#111827}
+
+.hud-bottom{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#1c232d;color:#fff;border-top-left-radius:22px;border-top-right-radius:22px;padding:12px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:space-between;gap:12px}
+#navigationScreen.day-theme .hud-bottom{background:#fff;color:#111827;box-shadow:0 -6px 24px rgba(0,0,0,.14)}
+.hud-close{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px;font-weight:800;display:grid;place-items:center;cursor:pointer;flex:none}
+#navigationScreen.day-theme .hud-close{background:#f3f4f6;color:#374151}
 .hud-trip-summary{text-align:center;flex:1;min-width:0}
-.hud-eta-main{font-size:22px;font-weight:900;color:#15803d;line-height:1.15}
-.hud-eta-sub{font-size:12px;color:#4b5563;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hud-status-line{font-size:10px;color:#6b7280;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hud-status-line.snapped{color:#0f766e;font-weight:700}
-.hud-status-line.warn{color:#b45309;font-weight:700}
-.hud-more{width:44px;height:44px;border-radius:50%;border:1px solid #e5e7eb;background:#f9fafb;color:#1a73e8;font-size:18px;font-weight:800;display:grid;place-items:center;cursor:pointer;flex:none}
-.hud-steps-drawer{position:fixed;left:12px;right:12px;bottom:calc(104px + env(safe-area-inset-bottom));z-index:75;background:#fff;border-radius:16px;padding:12px;box-shadow:0 10px 28px rgba(0,0,0,.22);max-height:42dvh;overflow-y:auto;display:none}
+.hud-eta-main{font-size:22px;font-weight:900;color:#4ade80;line-height:1.15}
+#navigationScreen.day-theme .hud-eta-main{color:#15803d}
+.hud-eta-sub{font-size:12px;color:#d1d5db;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#navigationScreen.day-theme .hud-eta-sub{color:#4b5563}
+.hud-status-line{font-size:10px;color:#9ca3af;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud-status-line.snapped{color:#38bdf8;font-weight:700}
+.hud-status-line.warn{color:#fbbf24;font-weight:700}
+.hud-more{width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:18px;font-weight:800;display:grid;place-items:center;cursor:pointer;flex:none}
+#navigationScreen.day-theme .hud-more{background:#f3f4f6;color:#1a73e8}
+
+.hud-steps-drawer{position:fixed;left:12px;right:12px;bottom:calc(104px + env(safe-area-inset-bottom));z-index:75;background:#1f2937;color:#f9fafb;border-radius:16px;padding:12px;box-shadow:0 10px 28px rgba(0,0,0,.45);max-height:42dvh;overflow-y:auto;display:none}
+#navigationScreen.day-theme .hud-steps-drawer{background:#fff;color:#111827}
 .hud-steps-drawer.open{display:block}
-.step-item{font-size:12px;padding:8px 9px;border-radius:10px;display:flex;justify-content:space-between;gap:8px;color:#374151}
-.step-item.active-step{background:#e8f0fe;color:#174ea6;font-weight:800}
+.step-item{font-size:12px;padding:8px 9px;border-radius:10px;display:flex;justify-content:space-between;gap:8px;color:inherit}
+.step-item.active-step{background:rgba(56,189,248,.2);color:#7dd3fc;font-weight:800}
+#navigationScreen.day-theme .step-item.active-step{background:#e8f0fe;color:#174ea6}
 
-/* Navigation Pop-up Info Card inside Nav Map */
-.nav-poi-card{position:fixed;left:12px;right:12px;bottom:calc(106px + env(safe-area-inset-bottom));z-index:74;background:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 10px 26px rgba(0,0,0,.22);display:none}
+.nav-poi-card{position:fixed;left:12px;right:12px;bottom:calc(106px + env(safe-area-inset-bottom));z-index:74;background:#1f2937;color:#fff;border-radius:16px;padding:12px 14px;box-shadow:0 10px 26px rgba(0,0,0,.42);display:none}
+#navigationScreen.day-theme .nav-poi-card{background:#fff;color:#111827}
 .nav-poi-card.open{display:block}
+#navigationScreen:not(.day-theme) .poi-sheet-sub{color:#d1d5db}
+#navigationScreen:not(.day-theme) .poi-sheet-close{background:rgba(255,255,255,.14);color:#fff}
 
-/* Blue Direction Arrow & Map Markers */
-.blue-nav-wrap{width:48px;height:48px;display:grid;place-items:center}
-.blue-nav-arrow{width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#4285f4 0%,#1a73e8 100%);border:3.5px solid #ffffff;box-shadow:0 4px 14px rgba(26,115,232,.5);display:grid;place-items:center;color:#ffffff;font-size:21px;font-weight:900;transition:transform .28s ease-out}
-.dest-pin{width:24px;height:24px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ea4335;transform:rotate(-45deg);box-shadow:0 2px 8px #0005}
-.park-pin{width:28px;height:28px;border:2.5px solid #ffffff;border-radius:50%;background:#1a73e8;color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center;box-shadow:0 3px 10px rgba(26,115,232,.45);cursor:pointer;transition:transform .15s}
-.park-pin.active-pin{background:#15803d;transform:scale(1.18)}
+/* 3D Car / Heading Cursor & Map Pins */
+.car-cursor-wrap{width:64px;height:64px;display:grid;place-items:center}
+.car-3d-body{width:46px;height:54px;border-radius:14px 14px 10px 10px;background:linear-gradient(180deg,#ffffff 0%,#e5e7eb 72%,#cbd5e1 100%);border:2px solid #0f172a;box-shadow:0 10px 20px rgba(0,0,0,.55),inset 0 2px 3px #fff;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5px 4px;transition:transform .24s ease-out}
+.car-windshield{width:34px;height:13px;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,#1e293b 0%,#334155 100%)}
+.car-rear-glass{width:32px;height:9px;border-radius:3px 3px 6px 6px;background:#334155}
+.car-headlight-beam{position:absolute;top:-28px;left:50%;transform:translateX(-50%);width:48px;height:30px;background:radial-gradient(ellipse at 50% 100%,rgba(56,189,248,.42) 0%,rgba(56,189,248,0) 75%);pointer-events:none}
+
+.dest-pin{width:24px;height:24px;border:3px solid white;border-radius:50% 50% 50% 0;background:#ef4444;transform:rotate(-45deg);box-shadow:0 2px 8px #0008}
+.park-pin{width:28px;height:28px;border:2.5px solid #ffffff;border-radius:50%;background:#1a73e8;color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center;box-shadow:0 3px 10px rgba(0,0,0,.45);cursor:pointer}
+.park-pin.active-pin{background:#15803d;transform:scale(1.16)}
+.nav-park-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(30,41,59,.92);color:#f8fafc;border:1.5px solid #94a3b8;border-radius:20px;padding:4px 9px 4px 4px;box-shadow:0 4px 12px rgba(0,0,0,.45);cursor:pointer;white-space:nowrap;transform:translate(-50%,-50%)}
+.nav-park-chip .chip-p{width:20px;height:20px;border-radius:50%;background:#64748b;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;flex:none}
+.nav-park-chip .chip-text{line-height:1.15;text-align:left}
+.nav-park-chip .chip-name{font-size:11px;font-weight:800;display:block;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+.nav-park-chip .chip-walk{font-size:10px;color:#cbd5e1;display:block}
 </style>
 </head>
 <body>
@@ -169,11 +198,11 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
       <div class="field">
         <label data-i="originLabel">出发点 / 当前定位</label>
         <div class="inputrow">
-          <input class="input" id="originInput" autocomplete="off" value="KL Gateway Residence" placeholder="Enter place or building name (English)">
+          <input class="input" id="originInput" autocomplete="off" value="" placeholder="Enter starting point or tap Locate me (English)">
           <button class="btn" id="locBtn" type="button" data-i="loc">⌖ 重新定位</button>
         </div>
         <div class="suggestions" id="originSuggest"></div>
-        <div class="hint" id="originHint" data-i="originHint">定位和搜索栏统一显示英文地名（精确到楼宇/商场），也可手动输入并点选建议。</div>
+        <div class="hint" id="originHint" data-i="originHint">初始留空；点击“重新定位”自动匹配英文楼宇/商场名，或手动输入并点选建议。</div>
       </div>
 
       <div class="field">
@@ -185,7 +214,7 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
 
       <div class="locstatus">
         <span class="dot"></span>
-        <span id="geoStatus" data-i="geoIdle">定位和地址搜索统一采用英文地名输出；高精度定位会优先匹配 120m 内具体楼栋或商场名称。</span>
+        <span id="geoStatus" data-i="geoIdle">定位和地址搜索统一采用英文地名输出；高精度定位会优先匹配 250m 内具体楼栋或商场名称。</span>
       </div>
 
       <button class="primary" id="findBtn" type="button" data-i="find">⌕ 查找附近停车区域</button>
@@ -204,7 +233,6 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
       <button class="zone" data-zone="C" type="button">Zone C</button>
     </div>
 
-    <!-- Google Maps-style Soft Overview Map with Clickable P Markers -->
     <div class="overview-wrap gmaps-soft-tiles" id="overviewWrap">
       <div class="overview-badge" id="overviewBadge">点击蓝色 P 标查看停车详情</div>
       <div id="overviewMap"></div>
@@ -266,14 +294,16 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
     <div class="panel">
       <h3 data-i="profileTitle">我的</h3>
       <div class="profile-row"><span data-i="language">语言 / Language</span><button class="btn" id="profileLang" type="button">简体中文 / English</button></div>
-      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.5 Test</span></div>
+      <div class="profile-row"><span data-i="version">应用版本</span><span class="pill">v3.6 Test</span></div>
       <div class="profile-row"><span data-i="mapSource">免费地图与停车数据源</span><span class="pill">OSM / Esri · Photon · Overpass · OSRM</span></div>
-      <p class="notice" data-i="profileNote">竞速查询缓存 + 商场车库召回 + Google Maps 柔和配色 &amp; 地图 P 标点击卡片（v3.5）。</p>
+      <p class="notice" data-i="profileNote">车载 3D 跟随视角 + 夜间高亮青蓝路线 + 地图 P 标步行时长提示 + 空出发点纯英文楼宇定位（v3.6）。</p>
     </div>
   </section>
 
-  <section class="screen gmaps-soft-tiles" id="navigationScreen">
-    <div id="routeMap" aria-label="Navigation map"></div>
+  <section class="screen" id="navigationScreen">
+    <div class="nav-stage" id="navStage">
+      <div id="routeMap" aria-label="Navigation map"></div>
+    </div>
 
     <div class="hud-top">
       <div class="hud-main-turn">
@@ -291,18 +321,18 @@ body.nav-mode .app{max-width:none;padding:0;min-height:100dvh}
     </div>
 
     <div class="hud-right-tools">
+      <button class="hud-circle-btn" id="themeBtn" type="button" title="日间/夜间模式">🌗</button>
       <button class="hud-circle-btn active" id="voiceBtn" type="button" title="语音">🔊</button>
       <button class="hud-circle-btn" id="stepsToggleBtn" type="button" title="路线步骤">☰</button>
     </div>
 
-    <div class="hud-speed" id="speedBox">
+    <button class="hud-recenter-pill" id="recenterNav" type="button">△ 回正</button>
+
+    <div class="hud-speed-badge" id="speedBox">
       <strong id="speedVal">--</strong>
       <span>km/h</span>
     </div>
 
-    <button class="hud-recenter" id="recenterNav" type="button" title="跟随当前位置">⌖</button>
-
-    <!-- Clickable Parking Marker Card inside Fullscreen Navigation -->
     <div class="nav-poi-card" id="navPoiCard">
       <div class="poi-sheet-top">
         <h4 class="poi-sheet-title" id="navPoiTitle">—</h4>
@@ -354,9 +384,9 @@ const I = {
   zh: {
     tagline: '马来西亚智能停车助手', hero: '找车位，轻松一点。', heroSub: '提前搜索目的地附近的商场与公共停车区域，减少绕路。',
     trip: '① 设置行程', originLabel: '出发点 / 当前定位', loc: '⌖ 重新定位',
-    originHint: '定位和搜索栏统一显示英文地名（精确到楼宇/商场），也可手动输入并点选建议。',
+    originHint: '初始留空；点击“重新定位”自动匹配英文楼宇/商场名，或手动输入并点选建议。',
     destLabel: '你要去哪里？', destHint: '输入至少 2 个字母，下拉列表将显示英文地点建议。',
-    geoIdle: '定位和地址搜索统一采用英文地名输出；高精度定位会优先匹配 120m 内具体楼栋或商场名称。',
+    geoIdle: '定位和地址搜索统一采用英文地名输出；高精度定位会优先匹配 250m 内具体楼栋或商场名称。',
     find: '⌕ 查找附近停车区域', routeToDestination: '↗ 开始导航到目的地',
     near: '附近公共/商场停车区域', closest: '点击地图 P 标或列表查看详情', all: '全部区域',
     parkingInitEmpty: '输入并确认目的地后，点击“查找附近停车区域”检索附近商场与公共停车场。',
@@ -371,19 +401,19 @@ const I = {
     noSaved: '你还没有收藏地点。搜索后可以收藏常用停车区域。', activityTitle: '最近动态',
     noActivity: '目前还没有活动记录。', profileTitle: '我的', language: '语言 / Language',
     version: '应用版本', mapSource: '免费地图与停车数据源',
-    profileNote: '竞速查询缓存 + 商场车库召回 + Google Maps 柔和配色 & 地图 P 标点击卡片（v3.5）。',
-    locating: '正在匹配当前所在楼栋/商场英文名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入英文地点。',
+    profileNote: '车载 3D 跟随视角 + 夜间高亮青蓝路线 + 地图 P 标步行时长提示 + 空出发点纯英文楼宇定位（v3.6）。',
+    locating: '正在匹配 250m 内英文楼宇/商场名称…', locFail: '无法取得定位，请检查浏览器定位权限或手动输入英文地点。',
     locDenied: '定位权限已被拒绝，请在浏览器设置中允许定位，或手动输入出发点。',
     locTimeout: '定位请求超时，请检查信号或稍后重试。',
     locApprox: '当前位置精度约 ±', meters: ' 米', searching: 'Searching places in English…',
     noResults: 'No matching place found. Add street, mall or city in English.',
     searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search temporarily unavailable.',
-    searchHintFull: 'Try e.g. KL Gateway Mall, Mid Valley Megamall, KL Eco City.',
+    searchHintFull: 'Try e.g. KL Gateway Mall, Mid Valley Megamall, Menara 1.',
     destMissing: '请先输入目的地。', originMissing: '请先输入出发地点或使用定位。',
     savedToast: '已加入收藏', removedToast: '已取消收藏',
     routePreparing: '正在规划路线…', routeError: '暂时无法规划路线。请确认起终点后重试。',
     routeSearching: '正在规划路线…',
-    routeReady: '实况 GPS 已启动 · 已开启智能贴路吸附',
+    routeReady: '实况 GPS 车载跟车已启动',
     routeOffRoute: '确认偏离路线，正在按当前位置重新规划…',
     routeSnapped: '已贴合路线行驶',
     routeFreeGps: 'GPS 实况追踪中',
@@ -399,11 +429,11 @@ const I = {
     tagline: 'Malaysia Smart Parking Assistant', hero: 'Find parking, stress less.',
     heroSub: 'Search public and mall parking near your destination before you arrive.',
     trip: '① Plan your trip', originLabel: 'Starting point / Current location', loc: '⌖ Locate me',
-    originHint: 'Search boxes always display English building/mall names regardless of UI language.',
+    originHint: 'Starts blank; tap Locate me for English building/mall name or type manually.',
     destLabel: 'Where are you going?', destHint: 'Type at least 2 letters to see English place suggestions.',
-    geoIdle: 'All place lookups output English names; high-accuracy GPS resolves exact building/mall within 120m.',
+    geoIdle: 'All place lookups output English names; high-accuracy GPS resolves building/mall within 250m.',
     find: '⌕ Find nearby parking', routeToDestination: '↗ Start navigation to destination',
-    near: 'Public & Mall Parking Nearby', closest: 'Tap map P markers or list items for details', all: 'All zones',
+    near: 'Public & Mall Parking Nearby', closest: 'Tap map P pins or list items for details', all: 'All zones',
     parkingInitEmpty: 'Confirm a destination, then tap "Find nearby parking" to search public & mall parking.',
     parkingNoResult: 'No mapped public/mall parking found nearby. You can navigate to destination directly.',
     parkingServiceFail: 'Parking lookup is busy or timed out. Retry later or navigate to destination directly.',
@@ -416,19 +446,19 @@ const I = {
     noSaved: 'No saved places yet.', activityTitle: 'Recent activity',
     noActivity: 'No activity yet.', profileTitle: 'Profile', language: 'Language / Language',
     version: 'App version', mapSource: 'Free map & parking sources',
-    profileNote: 'Fast raced queries + mall parking recall + soft Google-style map with clickable P pins (v3.5).',
-    locating: 'Resolving exact building/mall name in English…', locFail: 'Could not get location. Check permission or enter English place name.',
+    profileNote: '3D heading-up driver view + cyan route + parking walk chips + blank origin (v3.6).',
+    locating: 'Resolving building/mall name within 250m in English…', locFail: 'Could not get location. Check permission or enter English place name.',
     locDenied: 'Location permission denied. Enable it in browser settings or enter origin manually.',
     locTimeout: 'Location request timed out. Check signal and try again.',
     locApprox: 'Location accuracy ~±', meters: ' m', searching: 'Searching places in English…',
     noResults: 'No matching place found. Add street, mall or city in English.',
     searchTimeout: 'Place search timed out. Please try again.', searchError: 'Place search service is temporarily unavailable.',
-    searchHintFull: 'Try e.g. KL Gateway Mall, Mid Valley Megamall, KL Eco City.',
+    searchHintFull: 'Try e.g. KL Gateway Mall, Mid Valley Megamall, Menara 1.',
     destMissing: 'Enter a destination first.', originMissing: 'Enter a starting point or use location first.',
     savedToast: 'Added to Saved', removedToast: 'Removed from Saved',
     routePreparing: 'Planning route…', routeError: 'Could not plan route. Check origin and destination.',
     routeSearching: 'Planning route…',
-    routeReady: 'Live GPS active · Snap-to-route enabled',
+    routeReady: 'Live GPS 3D driver tracking active',
     routeOffRoute: 'Off route confirmed. Recalculating from live position…',
     routeSnapped: 'Snapped to route',
     routeFreeGps: 'Live GPS tracking',
@@ -442,7 +472,7 @@ const I = {
   }
 };
 
-let language = 'zh', originPoint = null, destPoint = null, voiceEnabled = true, followCamera = true;
+let language = 'zh', originPoint = null, destPoint = null, voiceEnabled = true, followCamera = true, dayTheme = false;
 let lastParkingItems = [], lastParkingDest = null, lastParkingStatus = 'init';
 let savedItems = [], activities = [];
 try { savedItems = JSON.parse(localStorage.getItem('pf_saved') || '[]'); } catch (_) {}
@@ -520,6 +550,12 @@ $('voiceBtn').onclick = () => {
   $('voiceBtn').classList.toggle('active', voiceEnabled);
   toast(voiceEnabled ? (language === 'zh' ? '语音播报已开启' : 'Voice on') : (language === 'zh' ? '语音播报已关闭' : 'Voice off'));
   if (voiceEnabled) speakInstruction($('nextManeuver').textContent);
+};
+
+$('themeBtn').onclick = () => {
+  dayTheme = !dayTheme;
+  $('navigationScreen').classList.toggle('day-theme', dayTheme);
+  toast(dayTheme ? (language === 'zh' ? '已切换日间柔和底图' : 'Day soft theme') : (language === 'zh' ? '已切换夜间车载深色底图' : 'Night driver dark theme'));
 };
 
 function showScreen(name) {
@@ -788,7 +824,6 @@ document.addEventListener('click', e => {
 setupAutocomplete('originInput', 'originSuggest', 'origin');
 setupAutocomplete('destInput', 'destSuggest', 'dest');
 
-/* Race two Overpass endpoints in parallel so queries finish fast */
 async function raceOverpass(query, timeoutMs = 5500) {
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
@@ -798,16 +833,16 @@ async function raceOverpass(query, timeoutMs = 5500) {
   return await Promise.any(tasks);
 }
 
-/* Building-level reverse geocoding in pure English (resolves exact tower/mall/office within 120m) */
+/* 250m building-level reverse geocoding in pure English */
 async function reversePlaceName(lat, lon) {
   try {
-    const q = `[out:json][timeout:5];(node(around:120,${lat},${lon})["name"]["office"];node(around:120,${lat},${lon})["name"]["shop"];node(around:120,${lat},${lon})["name"]["amenity"];way(around:120,${lat},${lon})["name"]["building"];relation(around:120,${lat},${lon})["name"]["building"];);out center tags 12;`;
-    const ov = await raceOverpass(q, 4800);
+    const q = `[out:json][timeout:5];(node(around:250,${lat},${lon})["name"]["office"];node(around:250,${lat},${lon})["name"]["shop"];node(around:250,${lat},${lon})["name"]["amenity"];way(around:250,${lat},${lon})["name"]["building"];relation(around:250,${lat},${lon})["name"]["building"];);out center tags 16;`;
+    const ov = await raceOverpass(q, 5200);
     const pois = (ov.elements || []).map(el => {
       const pLat = Number(el.lat ?? el.center?.lat), pLon = Number(el.lon ?? el.center?.lon);
       const t = el.tags || {};
       const name = toEnglishText(t['name:en'] || t.name || '');
-      const isLandmark = Boolean(t.office || t.mall || t.shop === 'mall' || ['commercial', 'office', 'retail', 'public'].includes(t.building));
+      const isLandmark = Boolean(t.office || t.mall || t.shop === 'mall' || /eco city|menara|tower|strata|mall|gateway|mid valley/i.test(name));
       return {
         name,
         isLandmark,
@@ -922,7 +957,6 @@ function smoothAngleDeg(prev, next, alpha = 0.35) {
   return (prev + diff * alpha + 360) % 360;
 }
 
-/* Filter out private/residential/condo parking; keep mall, commercial & compliant public parking */
 const PRIVATE_CONDO_REGEX = /\b(condo|condominium|apartment|apt|residensi|residence|residences|suite|suites|villa|flat|pangsapuri|hostel|dorm|staff|private|resident|residents|tenant|tenants|owners|permit|motorcycle\s*lane)\b/i;
 
 function isPublicOrMallParking(tags, rawName, distToDest) {
@@ -931,11 +965,9 @@ function isPublicOrMallParking(tags, rawName, distToDest) {
   if (tags.residential || tags.building === 'apartments' || tags.building === 'residential') return false;
   if (tags.motorcycle === 'yes' && tags.motorcar === 'no') return false;
   const combined = `${rawName} ${tags.operator || ''} ${tags.description || ''}`;
-  // Allow mall-named complexes even if mixed-use, otherwise exclude condo/residential keywords
   if (PRIVATE_CONDO_REGEX.test(combined) && !/mall|megamall|retail|commercial|visitor|public/i.test(combined)) {
     return false;
   }
-  // If access is unspecified, still allow if within 1200m of destination (commercial/public lots often omit access tag in OSM)
   return distToDest <= 1400;
 }
 
@@ -976,13 +1008,11 @@ function buildClearParkingInfo(tags, destPoint, distToDest) {
   return { displayName, categoryZh, categoryEn, isOnsiteMall };
 }
 
-/* Fast raced query + mall parking building recall + local cache */
 async function queryParkingFast(point) {
   const cKey = `${point.lat.toFixed(3)},${point.lon.toFixed(3)}`;
   const cached = parkingCache.get(cKey);
   if (cached && (Date.now() - cached.time < 15 * 60 * 1000)) return cached.items;
 
-  // Single comprehensive query: amenity=parking within 1200m + building=parking within 450m
   const query = `[out:json][timeout:6];(node(around:1200,${point.lat},${point.lon})[amenity=parking];way(around:1200,${point.lat},${point.lon})[amenity=parking];relation(around:1200,${point.lat},${point.lon})[amenity=parking];way(around:450,${point.lat},${point.lon})[building=parking];relation(around:450,${point.lat},${point.lon})[building=parking];);out center tags 40;`;
 
   let rawElements = [];
@@ -1001,6 +1031,7 @@ async function queryParkingFast(point) {
     return {
       id: `${el.type}/${el.id}`, lat, lon,
       name: info.displayName,
+      shortName: rawName || 'Parking lot',
       categoryZh: info.categoryZh,
       categoryEn: info.categoryEn,
       isOnsiteMall: info.isOnsiteMall,
@@ -1012,7 +1043,6 @@ async function queryParkingFast(point) {
     };
   }).filter(Boolean);
 
-  // If destination itself is a mall/complex and OSM didn't tag a separate parking node inside it, add the mall's own car park entry point
   const destLabel = toEnglishText(point.label || '');
   const isMallDest = /mall|megamall|gardens|pavilion|sunway|sentral|plaza|eco city|gateway/i.test(destLabel);
   if (isMallDest && !mapped.some(x => x._dist <= 160)) {
@@ -1021,6 +1051,7 @@ async function queryParkingFast(point) {
       lat: point.lat,
       lon: point.lon,
       name: `${destLabel} · Main Basement / Multi-Storey Car Park`,
+      shortName: 'Parking lot',
       categoryZh: '商场本体室内停车场（首选）',
       categoryEn: 'Mall On-Site Car Park (Primary)',
       isOnsiteMall: true,
@@ -1032,7 +1063,6 @@ async function queryParkingFast(point) {
     });
   }
 
-  // Fallback to Nominatim if Overpass returned nothing
   if (!mapped.length) {
     try {
       const qName = encodeURIComponent(`parking ${destLabel || 'Kuala Lumpur'}`);
@@ -1044,6 +1074,7 @@ async function queryParkingFast(point) {
           mapped.push({
             id: 'nom-p-' + idx, lat, lon,
             name: rawName ? `${rawName} · Public Parking` : `Public Parking · ${destLabel}`,
+            shortName: 'Parking lot',
             categoryZh: '公共/商业停车区域',
             categoryEn: 'Public / Commercial Parking',
             isOnsiteMall: false,
@@ -1105,7 +1136,6 @@ function openOverviewPoiSheet(p, dest, idx) {
   $('poiGmapsLink').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.lat + ',' + p.lon)}`;
   $('poiSheet').classList.add('open');
 
-  // Highlight selected marker and card
   overviewMarkers.forEach((m, mIdx) => {
     const el = m.getElement()?.querySelector('.park-pin');
     if (el) el.classList.toggle('active-pin', mIdx === idx);
@@ -1276,11 +1306,27 @@ $('routeDestBtn').onclick = async () => {
   }
 };
 
-/* --- Core Navigation State & Snap-to-Route / Heading Filter Engine --- */
+/* --- 3D Heading-Up Driver Navigation & Snap-to-Route Engine --- */
 let navMap = null, navMarker = null, navDestMarker = null, routeLine = null, navParkingMarkers = [];
 let watchId = null, currentRouteSteps = [], stepIndex = 0, lastSpokenIndex = -1;
-let lastRawGps = null, lastDisplayedPos = null, stableHeading = null;
+let lastRawGps = null, lastDisplayedPos = null, stableHeading = 0;
 let navTarget = null, activeRoute = null, lastReroute = 0, offRouteCount = 0, selectedNavPoi = null;
+
+function applyDriver3DTransform() {
+  const stage = $('navStage');
+  if (!stage) return;
+  if (!followCamera) {
+    stage.style.transform = 'scale(1) rotateX(0deg) rotateZ(0deg)';
+  } else {
+    const rot = Number.isFinite(stableHeading) ? -stableHeading : 0;
+    stage.style.transform = `scale(1.16) rotateX(22deg) rotateZ(${rot.toFixed(1)}deg)`;
+  }
+  const carEl = document.getElementById('car3dBody');
+  if (carEl) {
+    const rel = followCamera ? 0 : (Number.isFinite(stableHeading) ? stableHeading : 0);
+    carEl.style.transform = `rotate(${rel.toFixed(1)}deg)`;
+  }
+}
 
 function maneuverMeta(step) {
   const m = step?.maneuver || {}, type = m.type || '', mod = m.modifier || '';
@@ -1310,18 +1356,13 @@ function renderStepsList() {
   }).join('');
 }
 
-function makeBlueArrowIcon() {
+function makeCarCursorIcon() {
   return L.divIcon({
     className: '',
-    html: `<div class="blue-nav-wrap"><div class="blue-nav-arrow" id="blueArrowEl" style="transform:rotate(0deg)">➤</div></div>`,
-    iconSize: [48, 48],
-    iconAnchor: [24, 24]
+    html: `<div class="car-cursor-wrap"><div class="car-3d-body" id="car3dBody"><div class="car-headlight-beam"></div><div class="car-windshield"></div><div class="car-rear-glass"></div></div></div>`,
+    iconSize: [64, 64],
+    iconAnchor: [32, 32]
   });
-}
-
-function setBlueArrowHeading(deg) {
-  const el = document.getElementById('blueArrowEl');
-  if (el && Number.isFinite(deg)) el.style.transform = `rotate(${Math.round(deg - 90)}deg)`;
 }
 
 function renderNavParkingPins(target) {
@@ -1329,23 +1370,26 @@ function renderNavParkingPins(target) {
   navParkingMarkers = [];
   if (!navMap || !lastParkingItems.length) return;
 
-  lastParkingItems.forEach(p => {
+  lastParkingItems.slice(0, 5).forEach(p => {
+    const dist = distanceMeters(p, target);
+    const walkMin = Math.max(1, Math.round(dist / 75));
+    const chipLabel = p.shortName || 'Parking lot';
+    const walkText = language === 'zh' ? `步行 ${walkMin} 分钟` : `${walkMin} min walk`;
     const mk = L.marker([p.lat, p.lon], {
       icon: L.divIcon({
         className: '',
-        html: `<div class="park-pin">P</div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
+        html: `<div class="nav-park-chip"><span class="chip-p">P</span><span class="chip-text"><span class="chip-name">${escapeHtml(chipLabel)}</span><span class="chip-walk">${escapeHtml(walkText)}</span></span></div>`,
+        iconSize: [0, 0],
+        iconAnchor: [0, 0]
       })
     }).addTo(navMap);
+
     mk.on('click', () => {
       selectedNavPoi = p;
-      const dist = distanceMeters(p, target);
-      const zone = dist <= 500 ? 'A' : (dist <= 1000 ? 'B' : 'C');
       const distText = dist >= 1000 ? (dist / 1000).toFixed(1) + ' km' : Math.round(dist) + ' m';
       const cat = language === 'zh' ? p.categoryZh : p.categoryEn;
       $('navPoiTitle').textContent = p.name;
-      $('navPoiSub').textContent = `${cat} · Zone ${zone} · ${distText}`;
+      $('navPoiSub').textContent = `${cat} · ${distText} · ${walkText}`;
       $('navPoiSaveBtn').textContent = savedItems.includes(p.name) ? `♥ ${tr('savedState')}` : `♡ ${tr('save')}`;
       $('navPoiCard').classList.add('open');
     });
@@ -1370,20 +1414,26 @@ function initNavMap(origin, target) {
   if (!navMap) {
     navMap = L.map('routeMap', { zoomControl: false }).setView([origin.lat, origin.lon], 17);
     addFreeTileLayer(navMap, msg => { $('navProgress').textContent = msg; });
+    navMap.on('dragstart', () => {
+      followCamera = false;
+      $('recenterNav').classList.add('show');
+      applyDriver3DTransform();
+    });
   } else {
     navMap.setView([origin.lat, origin.lon], 17);
   }
 
+  $('recenterNav').classList.remove('show');
   if (navMarker) navMap.removeLayer(navMarker);
   if (navDestMarker) navMap.removeLayer(navDestMarker);
-  navMarker = L.marker([origin.lat, origin.lon], { icon: makeBlueArrowIcon(), zIndexOffset: 600 }).addTo(navMap);
+  navMarker = L.marker([origin.lat, origin.lon], { icon: makeCarCursorIcon(), zIndexOffset: 600 }).addTo(navMap);
   navDestMarker = L.marker([target.lat, target.lon], {
     icon: L.divIcon({ className: '', html: '<div class="dest-pin"></div>', iconSize: [24, 24], iconAnchor: [12, 24] })
-  }).addTo(navMap).bindPopup(escapeHtml(target.label || 'Destination'));
+  }).addTo(navMap);
 
   renderNavParkingPins(target);
   stableHeading = bearingDeg(origin, target);
-  setTimeout(() => { navMap.invalidateSize(); setBlueArrowHeading(stableHeading); }, 180);
+  setTimeout(() => { navMap.invalidateSize(); applyDriver3DTransform(); }, 180);
 }
 
 function updateManeuver(here = null, forceSpeak = false) {
@@ -1421,7 +1471,7 @@ async function drawRoute(origin, target) {
   if (data.code !== 'Ok' || !data.routes?.length) throw new Error('no-route');
   const route = data.routes[0];
   if (routeLine) navMap.removeLayer(routeLine);
-  routeLine = L.geoJSON(route.geometry, { style: { color: '#1a73e8', weight: 8, opacity: 0.92 } }).addTo(navMap);
+  routeLine = L.geoJSON(route.geometry, { style: { color: '#00d8ff', weight: 9, opacity: 0.95 } }).addTo(navMap);
   navMap.setView([origin.lat, origin.lon], 17);
   currentRouteSteps = route.legs?.[0]?.steps || [];
   stepIndex = 0; lastSpokenIndex = -1; activeRoute = route;
@@ -1429,7 +1479,7 @@ async function drawRoute(origin, target) {
   const coords = route.geometry?.coordinates || [];
   if (coords.length >= 2) {
     stableHeading = bearingDeg({ lat: coords[0][1], lon: coords[0][0] }, { lat: coords[1][1], lon: coords[1][0] });
-    setBlueArrowHeading(stableHeading);
+    applyDriver3DTransform();
   }
 
   updateManeuver(origin, true);
@@ -1507,6 +1557,16 @@ async function startNavigation(target, origin) {
     $('nextManeuver').textContent = tr('routePreparing');
     $('navProgress').textContent = tr('routeTo') + (target.label || '');
     initNavMap(origin, target);
+
+    // Fetch nearby public/mall parking for target in background so nav map shows P chips
+    queryParkingFast(target).then(list => {
+      if (list.length) {
+        lastParkingItems = list;
+        lastParkingDest = target;
+        renderNavParkingPins(target);
+      }
+    }).catch(() => {});
+
     await drawRoute(origin, target);
 
     if (navigator.geolocation) {
@@ -1550,14 +1610,16 @@ async function startNavigation(target, origin) {
               ? smoothAngleDeg(candidateHeading, proj.segmentBearing, 0.45)
               : candidateHeading;
             stableHeading = smoothAngleDeg(stableHeading, blended, 0.35);
-            setBlueArrowHeading(stableHeading);
           }
 
           lastRawGps = { lat: raw.lat, lon: raw.lon, _ts: now };
           lastDisplayedPos = displayPos;
 
           if (navMarker) navMarker.setLatLng([displayPos.lat, displayPos.lon]);
-          if (followCamera && navMap) navMap.panTo([displayPos.lat, displayPos.lon], { animate: true, duration: 0.35 });
+          if (followCamera && navMap) {
+            navMap.panTo([displayPos.lat, displayPos.lon], { animate: true, duration: 0.35 });
+          }
+          applyDriver3DTransform();
 
           if (proj) updateRemainingFromMeters(proj.remainingMeters);
 
@@ -1605,7 +1667,9 @@ async function startNavigation(target, origin) {
 $('endNav').onclick = () => { stopNavigation(); showScreen('home'); toast(language === 'zh' ? '已结束导航' : 'Navigation ended'); };
 $('recenterNav').onclick = () => {
   followCamera = true;
+  $('recenterNav').classList.remove('show');
   if (lastDisplayedPos && navMap) navMap.setView([lastDisplayedPos.lat, lastDisplayedPos.lon], 17);
+  applyDriver3DTransform();
 };
 $('stepsToggleBtn').onclick = () => $('stepsDrawer').classList.toggle('open');
 $('hudStepsBtn').onclick = () => $('stepsDrawer').classList.toggle('open');
